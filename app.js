@@ -39,7 +39,7 @@ var responsesList = [
 //List of current available classes
 var classesList;
 //Map of users and the classes they are assigned to
-var usersMap;
+var classesMap;
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
@@ -92,6 +92,7 @@ app.post("/interactions", async function (req, res) {
       const d = readData(); // Read data from JSON file
 
       d.classesList.push(className); // Add the class to the list
+      d.classesMap.push({ class: className, users: [] });
       writeData(d); // Write updated data back to the JSON file
 
       return res.send({
@@ -109,6 +110,7 @@ app.post("/interactions", async function (req, res) {
 
       if (index >= 0 && index < d.classesList.length) {
         d.classesList.splice(index, 1); // Remove the class at the specified index
+        d.classesMap.splice(index, 1);
         writeData(d); // Write updated data back to the JSON file
 
         return res.send({
@@ -266,7 +268,8 @@ app.post("/interactions", async function (req, res) {
                     options: await getClassesOptions(),
                     //options: [{ label: "hi", value: "hi" }],
                     min_values: 1,
-                    max_values: d.classesList.length < 7 ? d.classesList.length : 7,
+                    max_values:
+                      d.classesList.length < 7 ? d.classesList.length : 7,
                   },
                 ],
               },
@@ -284,19 +287,30 @@ app.post("/interactions", async function (req, res) {
       //get user's id
       const userId = req.body.member.user.id;
       const d = readData();
-      
-      const selected = [];
+      var selected = [];
+
       for (var i = 0; i < data.values.length; i++) {
         selected.push(data.values[i]);
+        for (var j = 0; j < d.classesMap.length; j++) {
+          if (d.classesMap[i].class === data.values[j])
+            if (!d.classesMap[i].users.includes(userId)) {
+              d.classesMap[i].users.push(userId);
+            }
+          break;
+        }
       }
+
       // Delete message with token in request body
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
       try {
         await res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            content: "You will now be notified of any upcoming quizzes, tests, or events from these classes: "
-            + "```\n" + selected.join("\n") + "\n```",
+            content:
+              "You will now be notified of any upcoming quizzes, tests, or events from these classes: " +
+              "```\n" +
+              selected.join("\n") +
+              "\n```",
           },
         });
         // Delete previous message

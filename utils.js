@@ -8,7 +8,7 @@ const path = './data.json';
 export function readData() {
   try {
     if (!fs.existsSync(path)) {
-       fs.writeFileSync(path, JSON.stringify({ classesList: [], usersMap: [] }, null, 2));
+       fs.writeFileSync(path, JSON.stringify({ classesList: [], classesMap: [] }, null, 2));
     }
     const d = fs.readFileSync(path, 'utf8');
     return JSON.parse(d);

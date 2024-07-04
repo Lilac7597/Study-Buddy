@@ -1,7 +1,31 @@
 {
   "classesList": [
-    "English",
-    "asdf"
+    "geometry",
+    "english",
+    "science",
+    "history",
+    "human"
   ],
-  "usersMap": []
+  "classesMap": [
+    {
+      "class": "geometry",
+      "users": []
+    },
+    {
+      "class": "english",
+      "users": []
+    },
+    {
+      "class": "science",
+      "users": []
+    },
+    {
+      "class": "history",
+      "users": []
+    },
+    {
+      "class": "human",
+      "users": []
+    }
+  ]
 }
