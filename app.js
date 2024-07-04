@@ -35,6 +35,8 @@ var responsesList = [
 ];
 //List of current available classes
 var classesList = [];
+//List of users and the classes they are assigned to
+var usersMap = new Map();
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
@@ -83,33 +85,37 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "add-class") {
-      const className = req.body.data.options[0].value;
-      let { classesList } = readData(); // Read data from JSON file
+      
+        const className = req.body.data.options[0].value;
+        const d = readData(); // Read data from JSON file
 
-      classesList.push(className); // Add the class to the list
-      writeData({ classesList }); // Write updated data back to the JSON file
-
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `Class "${className}" successfully added!`,
-        },
-      });
+       d.classesList.push(className); // Add the class to the list
+        writeData(d); // Write updated data back to the JSON file
+        
+        
+        
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Class "${className}" successfully added!`,
+            //content: "" + d.classesList.length,
+          },
+        });
     }
 
     if (name === "remove-class") {
       const index = req.body.data.options[0].value - 1;
 
-      let { classesList } = readData(); // Read data from JSON file
+      const d = readData(); // Read data from JSON file
 
-      if (index >= 0 && index < classesList.length) {
-        classesList.splice(index, 1); // Remove the class at the specified index
-        writeData({ classesList }); // Write updated data back to the JSON file
+      if (index >= 0 && index < d.classesList.length) {
+        d.classesList.splice(index, 1); // Remove the class at the specified index
+        writeData(d); // Write updated data back to the JSON file
 
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            content: `Class successfully removed! Current number of classes: ${classesList.length}`,
+            content: `Class successfully removed! Current number of classes: ${d.classesList.length}`,
           },
         });
       } else {
@@ -124,7 +130,7 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "classes") {
-      let { classesList } = readData(); // Read data from JSON file
+      const d = readData(); // Read data from JSON file
 
       const embed = {
         title: "All Classes",
@@ -134,7 +140,7 @@ app.post("/interactions", async function (req, res) {
         footer: {
           icon_url:
             "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
-          text: `Total: ${classesList.length}`,
+          text: `Total: ${d.classesList.length}`,
         },
         thumbnail: {
           url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
@@ -143,10 +149,10 @@ app.post("/interactions", async function (req, res) {
           {
             name: "Current List of Available Classes:",
             value:
-              classesList.length === 0
+              d.classesList.length === 0
                 ? "Type `/add-class` to get started!"
                 : "```\n" +
-                  classesList
+                  d.classesList
                     .map((className, index) => `${index + 1}. ${className}`)
                     .join("\n") +
                   "\n```",
@@ -158,19 +164,22 @@ app.post("/interactions", async function (req, res) {
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           embeds: [embed],
-          components: classesList.length === 0 ? [] : [
-            {
-              type: 1,
-              components: [
-                {
-                  type: 2,
-                  custom_id: "choose_btn",
-                  style: 1,
-                  label: "Choose...",
-                },
-              ],
-            },
-          ],
+          components:
+            d.classesList.length === 0
+              ? []
+              : [
+                  {
+                    type: 1,
+                    components: [
+                      {
+                        type: 2,
+                        custom_id: "choose_btn",
+                        style: 1,
+                        label: "Choose...",
+                      },
+                    ],
+                  },
+                ],
         },
       });
     }
@@ -262,10 +271,14 @@ app.post("/interactions", async function (req, res) {
         console.error("Error sending message:", err);
       }
     }
-    
-    if(componentId === "class_select"){
+
+    if (componentId === "class_select") {
       //get user's id
       const userId = req.body.member.user.id;
+      const selected = [];
+      for (var i = 0; i < data.values.length; i++) {
+        selected.push(data.values[i]);
+      }
       // Delete message with token in request body
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
       try {
@@ -332,14 +345,14 @@ app.listen(PORT, () => {
       }); */
 
 async function getClassesOptions() {
-  let { classesList } = readData();
+  const data = readData();
   var options = [];
-  for (var i = 0; i < classesList.length; i++) {
+  for (var i = 0; i < data.classesList.length; i++) {
     options.push({
-      label: classesList[i],
-      value: classesList[i],
+      label: data.classesList[i],
+      value: data.classesList[i],
     });
   }
-  
+
   return options;
 }

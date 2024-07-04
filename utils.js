@@ -2,34 +2,61 @@ import 'dotenv/config';
 import fetch from 'node-fetch';
 import { verifyKey } from 'discord-interactions';
 import fs from 'fs';
+// import path from 'path';
+// import { fileURLToPath } from 'url';
 
-// Path to the data file
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
+// const dataPath = path.join(__dirname, 'data.json');
 const path = './data.json';
 
-// Read JSON data from the file
-const readData = () => {
+export function readData() {
   try {
     if (!fs.existsSync(path)) {
-      fs.writeFileSync(path, JSON.stringify({ classesList: [] }, null, 2));
+       fs.writeFileSync(path, JSON.stringify({ classesList: [], usersMap: [] }, null, 2));
     }
-    const data = fs.readFileSync(path, 'utf8');
-    return JSON.parse(data);
-  } catch (err) {
-    console.error('Error reading data.json:', err);
-    return { classesList: [] };
+    const d = fs.readFileSync(path, 'utf8');
+    return JSON.parse(d);
+  } catch (error) {
+    console.error('Error reading data:', error);
+    return {};
   }
-};
+}
 
-// Write JSON data to the file
-const writeData = (data) => {
+export function writeData(d) {
   try {
-    fs.writeFileSync(path, JSON.stringify(data, null, 2));
-  } catch (err) {
-    console.error('Error writing to data.json:', err);
+    fs.writeFileSync(path, JSON.stringify(d, null, 2), 'utf8');
+  } catch (error) {
+    console.error('Error writing data:', error);
   }
-};
+}
 
-export { readData, writeData };
+// // Path to the data file
+// const path = './data.json';
+
+// // Read JSON data from the file
+// const readData = () => {
+//   try {
+//     if (!fs.existsSync(path)) {
+//       fs.writeFileSync(path, JSON.stringify({ classesList: [] }, null, 2));
+//     }
+//     const data = fs.readFileSync(path, 'utf8');
+//     return JSON.parse(data);
+//   } catch (err) {
+//     console.error('Error reading data.json:', err);
+//     return { classesList: [] };
+//   }
+// };
+
+// // Write JSON data to the file
+// const writeData = (data) => {
+//   try {
+//     fs.writeFileSync(path, JSON.stringify(data, null, 2));
+//   } catch (err) {
+//     console.error('Error writing to data.json:', err);
+//   }
+// };
 
 export function VerifyDiscordRequest(clientKey) {
   return function (req, res, buf, encoding) {
