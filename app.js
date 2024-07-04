@@ -98,7 +98,7 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "remove-class") {
-      const index = req.body.data.options[0].value-1;
+      const index = req.body.data.options[0].value - 1;
 
       let { classesList } = readData(); // Read data from JSON file
 
@@ -158,7 +158,7 @@ app.post("/interactions", async function (req, res) {
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           embeds: [embed],
-          components: [
+          components: classesList.length === 0 ? [] : [
             {
               type: 1,
               components: [
@@ -174,76 +174,6 @@ app.post("/interactions", async function (req, res) {
         },
       });
     }
-
-    //     if (name === "classes") {
-    //       const embed = {
-    //         title: "All Classes",
-    //         description:
-    //           "Type `/add-class` to add a class, or type `/remove-class` to remove a class.",
-    //         color: 7793062,
-    //         footer: {
-    //           icon_url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
-    //           text: "Total: " + classesList.length,
-    //         },
-    //         thumbnail: {
-    //           url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
-    //         },
-    //         fields: [
-    //           {
-    //             name: "Current List of Available Classes:",
-    //             value:
-    //               classesList.length === 0
-    //                 ? "Type `/add_class` to get started!"
-    //                 : "```\n" + classesList.map((className, index) => `${index + 1}. ${className}`).join('\n') + "\n```",
-    //           },
-    //         ],
-    //       };
-
-    //       return res.send({
-    //         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    //         data: {
-    //           embeds: [embed],
-    //           components: [
-    //             {
-    //               type: 1,
-    //               components: [
-    //                 {
-    //                   type: 2,
-    //                   custom_id: "choose_btn",
-    //                   style: 1,
-    //                   label: "Choose...",
-    //                 }
-    //               ]
-    //             }
-    //           ]
-    //         },
-    //       });
-    //     }
-
-    //     if(name === "add-class") {
-    //       classesList.push(req.body.data.options[0].value);
-
-    //       return res.send({
-    //          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    //         data: {
-    //           content: "Class successfully added!",
-    //         }
-    //       });
-    //     }
-
-    //     if(name === "remove-class") {
-    //       var index = req.body.data.options[0].value-1;
-
-    //       if (index >= 0 && index < classesList.length)
-    //       classesList.splice(index, 1);
-
-    //       return res.send({
-    //          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    //         data: {
-    //           content: "Class successfully removed!",
-    //         }
-    //       });
-    //     }
 
     if (name === "calculate") {
       var allClassAvgList = [
@@ -296,6 +226,62 @@ app.post("/interactions", async function (req, res) {
       });
     }
   }
+
+  if (type === InteractionType.MESSAGE_COMPONENT) {
+    // custom_id set in payload when sending message component
+    const componentId = data.custom_id;
+
+    if (componentId === "choose_btn") {
+      // Delete message with token in request body
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      try {
+        await res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: "Select the classes you are currently taking: ",
+            components: [
+              {
+                type: 1,
+                components: [
+                  {
+                    type: 3,
+                    custom_id: "class_select",
+                    placeholder: "Select classes",
+                    options: await getClassesOptions(),
+                    min_values: 1,
+                    max_values: 7,
+                  },
+                ],
+              },
+            ],
+          },
+        });
+        // Delete previous message
+        await DiscordRequest(endpoint, { method: "DELETE" });
+      } catch (err) {
+        console.error("Error sending message:", err);
+      }
+    }
+    
+    if(componentId === "class_select"){
+      //get user's id
+      const userId = req.body.member.user.id;
+      // Delete message with token in request body
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      try {
+        await res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: "",
+          },
+        });
+        // Delete previous message
+        await DiscordRequest(endpoint, { method: "DELETE" });
+      } catch (err) {
+        console.error("Error sending message:", err);
+      }
+    }
+  }
 });
 
 app.listen(PORT, () => {
@@ -344,3 +330,16 @@ app.listen(PORT, () => {
           ],
         },
       }); */
+
+async function getClassesOptions() {
+  let { classesList } = readData();
+  var options = [];
+  for (var i = 0; i < classesList.length; i++) {
+    options.push({
+      label: classesList[i],
+      value: classesList[i],
+    });
+  }
+  
+  return options;
+}
