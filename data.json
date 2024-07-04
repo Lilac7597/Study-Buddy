@@ -1,9 +1,7 @@
 {
-  "data": {
-    "classesList": [
-      "English",
-      "geometry"
-    ],
-    "usersMap": []
-  }
+  "classesList": [
+    "English",
+    "asdf"
+  ],
+  "usersMap": []
 }

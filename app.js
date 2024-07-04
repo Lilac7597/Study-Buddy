@@ -7,9 +7,12 @@ import {
   MessageComponentTypes,
   ButtonStyleTypes,
 } from "discord-interactions";
-import { VerifyDiscordRequest, DiscordRequest } from "./utils.js";
-import { Client, GatewayIntentBits } from "discord.js";
-import { readData, writeData } from "./utils.js"; // Adjust the path to where you save the functions
+import {
+  readData,
+  writeData,
+  VerifyDiscordRequest,
+  DiscordRequest,
+} from "./utils.js";
 
 // Create an express app
 const app = express();
@@ -34,9 +37,9 @@ var responsesList = [
   "bonjour",
 ];
 //List of current available classes
-var classesList = [];
-//List of users and the classes they are assigned to
-var usersMap = new Map();
+var classesList;
+//Map of users and the classes they are assigned to
+var usersMap;
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
@@ -85,22 +88,18 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "add-class") {
-      
-        const className = req.body.data.options[0].value;
-        const d = readData(); // Read data from JSON file
+      const className = req.body.data.options[0].value;
+      const d = readData(); // Read data from JSON file
 
-       d.classesList.push(className); // Add the class to the list
-        writeData(d); // Write updated data back to the JSON file
-        
-        
-        
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: `Class "${className}" successfully added!`,
-            //content: "" + d.classesList.length,
-          },
-        });
+      d.classesList.push(className); // Add the class to the list
+      writeData(d); // Write updated data back to the JSON file
+
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `Class "${className}" successfully added!`,
+        },
+      });
     }
 
     if (name === "remove-class") {
@@ -239,8 +238,16 @@ app.post("/interactions", async function (req, res) {
   if (type === InteractionType.MESSAGE_COMPONENT) {
     // custom_id set in payload when sending message component
     const componentId = data.custom_id;
+    const d = readData();
 
     if (componentId === "choose_btn") {
+      // return res.send({
+      //   type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      //   data: {
+      //     content: "hi",
+      //   }
+      // });
+
       // Delete message with token in request body
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
       try {
@@ -255,10 +262,11 @@ app.post("/interactions", async function (req, res) {
                   {
                     type: 3,
                     custom_id: "class_select",
-                    placeholder: "Select classes",
+                    placeholder: "Select classes (max 7)",
                     options: await getClassesOptions(),
+                    //options: [{ label: "hi", value: "hi" }],
                     min_values: 1,
-                    max_values: 7,
+                    max_values: d.classesList.length < 7 ? d.classesList.length : 7,
                   },
                 ],
               },
@@ -275,6 +283,8 @@ app.post("/interactions", async function (req, res) {
     if (componentId === "class_select") {
       //get user's id
       const userId = req.body.member.user.id;
+      const d = readData();
+      
       const selected = [];
       for (var i = 0; i < data.values.length; i++) {
         selected.push(data.values[i]);
@@ -285,7 +295,8 @@ app.post("/interactions", async function (req, res) {
         await res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            content: "",
+            content: "You will now be notified of any upcoming quizzes, tests, or events from these classes: "
+            + "```\n" + selected.join("\n") + "\n```",
           },
         });
         // Delete previous message
@@ -345,12 +356,12 @@ app.listen(PORT, () => {
       }); */
 
 async function getClassesOptions() {
-  const data = readData();
+  const d = readData();
   var options = [];
-  for (var i = 0; i < data.classesList.length; i++) {
+  for (var i = 0; i < d.classesList.length; i++) {
     options.push({
-      label: data.classesList[i],
-      value: data.classesList[i],
+      label: d.classesList[i],
+      value: d.classesList[i],
     });
   }
 
