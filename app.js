@@ -1,13 +1,13 @@
-import 'dotenv/config';
-import express from 'express';
+import "dotenv/config";
+import express from "express";
 import {
   InteractionType,
   InteractionResponseType,
   InteractionResponseFlags,
   MessageComponentTypes,
   ButtonStyleTypes,
-} from 'discord-interactions';
-import { VerifyDiscordRequest, DiscordRequest } from './utils.js';
+} from "discord-interactions";
+import { VerifyDiscordRequest, DiscordRequest } from "./utils.js";
 
 // Create an express app
 const app = express();
@@ -17,12 +17,12 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
 
 // Store for in-progress games. In production, you'd want to use a DB
-const activeGames = {};
+const eventsList = {};
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
  */
-app.post('/interactions', async function (req, res) {
+app.post("/interactions", async function (req, res) {
   // Interaction type and data
   const { type, id, data } = req.body;
 
@@ -41,25 +41,110 @@ app.post('/interactions', async function (req, res) {
     const { name } = data;
 
     // "test" command
-    if (name === 'test') {
+    if (name === "test") {
       // Send a message into the channel where command was triggered from
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: 'hello world ',
+          content: "woah ",
         },
       });
     }
-    
-    if (name === 'calculate') {
+
+    if (name === "calculate") {
       
-    
+      var allClassAvgList = [req.body.data.options[0].value, req.body.data.options[2].value, req.body.data.options[4].value, req.body.data.options[6].value];
+      var allClassWeightsList = [req.body.data.options[1].value, req.body.data.options[3].value, req.body.data.options[5].value, req.body.data.options[7].value];
+      var sum = 0;
+      for(var i = 0; i < allClassAvgList.length; i++){
+        var decrement = 4;
+        var count = 0;
+        var classGPA;
+        if(allClassWeightsList[i] == "REG"){
+          classGPA = 5;
+        } else if(allClassWeightsList[i] == "MAP"){
+          classGPA = 5.5;
+        } else if(allClassWeightsList[i] == "AP"){
+          classGPA = 6;
+        }
+        for(var j = 97; j > allClassAvgList[i]; j -= decrement){
+          classGPA = classGPA - 0.2;
+          if(count == 0){
+            decrement = 4;
+          } else {
+            decrement = 3;
+          }
+          count = (count + 1) % 3;
+        }
+        if(allClassAvgList[i] < 70){
+          classGPA = 0;
+        } else if(allClassAvgList[i] == 70){
+          classGPA = classGPA - 0.4;
+        }
+        sum += classGPA;
+      }
+      var GPA = sum/allClassAvgList.length;
       
+      
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "Your GPA is: " + GPA,
+        },
+      });
+    }
+
+    if (name === "calculate") {
+      var sum = 0;
+      var allGradesList = [
+        req.body.data.options[3].value,
+        req.body.data.options[4].value,
+        req.body.data.options[5].value,
+        req.body.data.options[6].value,
+        req.body.data.options[7].value,
+        req.body.data.options[8].value,
+        req.body.data.options[9].value,
+      ];
+      var allWeightsList = [
+        req.body.data.options[0].value,
+        req.body.data.options[1].value,
+        req.body.data.options[2].value,
+      ];
+
+      for (var i = 0; i < allClassAvgList.length; i++) {
+        var decrement = 4;
+        var count = 0;
+        var classGPA;
+        if (allClassWeightsList[i] == "REG") {
+          classGPA = 5;
+        } else if (allClassWeightsList[i] == "MAP") {
+          classGPA = 5.5;
+        } else if (allClassWeightsList[i] == "AP") {
+          classGPA = 6;
+        }
+        for (var j = 97; j > allClassAvgList[i]; j -= decrement) {
+          classGPA = roundToTenths(classGPA - 0.2);
+          if (count == 0) {
+            decrement = 4;
+          } else {
+            decrement = 3;
+          }
+          count = (count + 1) % 3;
+        }
+        if (allClassAvgList[i] < 70) {
+          classGPA = 0;
+        } else if (allClassAvgList[i] == 70) {
+          classGPA = roundToTenths(classGPA - 0.4);
+        }
+        sum += classGPA;
+      }
+      return roundToTenths(sum / allClassAvgList.length);
+
       // Send a message into the channel where command was triggered from
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: 'Your GPA is: ',
+          content: "Your GPA is: ",
         },
       });
     }
@@ -67,5 +152,5 @@ app.post('/interactions', async function (req, res) {
 });
 
 app.listen(PORT, () => {
-  console.log('Listening on port', PORT);
+  console.log("Listening on port", PORT);
 });
