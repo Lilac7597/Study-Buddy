@@ -50,3 +50,25 @@ export async function InstallGlobalCommands(appId, commands) {
     console.error(err);
   }
 }
+
+export async function AddGlobalCommand(appId, command){
+  const endpoint = `applications/${appId}/commands`;
+  
+  try {
+    // This is calling the bulk overwrite endpoint: https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-global-application-commands
+    await DiscordRequest(endpoint, { method: 'POST', body: command });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function DeleteGlobalCommand(appId, commandid){
+  const endpoint = `applications/${appId}/commands`;
+  
+  try {
+    // This is calling the bulk overwrite endpoint: https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-global-application-commands
+    await DiscordRequest(endpoint, { method: 'DELETE', body: commandid });
+  } catch (err) {
+    console.error(err);
+  }
+}
