@@ -22,13 +22,27 @@ const CLASSES_COMMAND = {
 
 const ADDCLASS_COMMAND = {
   name: "add-class",
-  description: "Add a class to the list of available classes",
+  description: "Add a class",
   type: 1,
   options: [
     {
       type: 3,
       name: "class",
       description: "Enter the name of the class",
+      required: true,
+    }
+  ]
+}
+
+const REMOVECLASS_COMMAND = {
+  name: "remove-class",
+  description: "Remove a class",
+  type: 1,
+  options: [
+    {
+      type: 4,
+      name: "class-number",
+      description: "Enter the class number",
       required: true,
     }
   ]
@@ -147,7 +161,7 @@ const CALCULATE_COMMAND = {
   type: 1,
 };
 
-const ALL_COMMANDS = [TEST_COMMAND, HI_COMMAND, CLASSES_COMMAND, ADDCLASS_COMMAND, CALCULATE_COMMAND];
+const ALL_COMMANDS = [TEST_COMMAND, HI_COMMAND, CLASSES_COMMAND, ADDCLASS_COMMAND, REMOVECLASS_COMMAND, CALCULATE_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
 

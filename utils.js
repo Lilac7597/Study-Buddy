@@ -1,6 +1,35 @@
 import 'dotenv/config';
 import fetch from 'node-fetch';
 import { verifyKey } from 'discord-interactions';
+import fs from 'fs';
+
+// Path to the data file
+const path = './data.json';
+
+// Read JSON data from the file
+const readData = () => {
+  try {
+    if (!fs.existsSync(path)) {
+      fs.writeFileSync(path, JSON.stringify({ classesList: [] }, null, 2));
+    }
+    const data = fs.readFileSync(path, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    console.error('Error reading data.json:', err);
+    return { classesList: [] };
+  }
+};
+
+// Write JSON data to the file
+const writeData = (data) => {
+  try {
+    fs.writeFileSync(path, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('Error writing to data.json:', err);
+  }
+};
+
+export { readData, writeData };
 
 export function VerifyDiscordRequest(clientKey) {
   return function (req, res, buf, encoding) {

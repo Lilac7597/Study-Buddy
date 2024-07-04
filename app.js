@@ -8,6 +8,8 @@ import {
   ButtonStyleTypes,
 } from "discord-interactions";
 import { VerifyDiscordRequest, DiscordRequest } from "./utils.js";
+import { Client, GatewayIntentBits } from "discord.js";
+import { readData, writeData } from "./utils.js"; // Adjust the path to where you save the functions
 
 // Create an express app
 const app = express();
@@ -80,15 +82,59 @@ app.post("/interactions", async function (req, res) {
       });
     }
 
+    if (name === "add-class") {
+      const className = req.body.data.options[0].value;
+      let { classesList } = readData(); // Read data from JSON file
+
+      classesList.push(className); // Add the class to the list
+      writeData({ classesList }); // Write updated data back to the JSON file
+
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `Class "${className}" successfully added!`,
+        },
+      });
+    }
+
+    if (name === "remove-class") {
+      const index = req.body.data.options[0].value-1;
+
+      let { classesList } = readData(); // Read data from JSON file
+
+      if (index >= 0 && index < classesList.length) {
+        classesList.splice(index, 1); // Remove the class at the specified index
+        writeData({ classesList }); // Write updated data back to the JSON file
+
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Class successfully removed! Current number of classes: ${classesList.length}`,
+          },
+        });
+      } else {
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: "Index not found.",
+            ephemeral: true,
+          },
+        });
+      }
+    }
+
     if (name === "classes") {
+      let { classesList } = readData(); // Read data from JSON file
+
       const embed = {
         title: "All Classes",
         description:
-          "Type `/add_class` to add a class, or type `/remove_class` to remove a class.",
+          "Type `/add-class` to add a class, or type `/remove-class` to remove a class.",
         color: 7793062,
         footer: {
-          icon_url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
-          text: "Total: " + classesList.length,
+          icon_url:
+            "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+          text: `Total: ${classesList.length}`,
         },
         thumbnail: {
           url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
@@ -98,8 +144,12 @@ app.post("/interactions", async function (req, res) {
             name: "Current List of Available Classes:",
             value:
               classesList.length === 0
-                ? "Type `/add_class` to get started!"
-                : "```\n" + classesList.map((className, index) => `${index + 1}. ${className}`).join('\n') + "\n```",
+                ? "Type `/add-class` to get started!"
+                : "```\n" +
+                  classesList
+                    .map((className, index) => `${index + 1}. ${className}`)
+                    .join("\n") +
+                  "\n```",
           },
         ],
       };
@@ -117,24 +167,83 @@ app.post("/interactions", async function (req, res) {
                   custom_id: "choose_btn",
                   style: 1,
                   label: "Choose...",
-                }
-              ]
-            }
-          ]
+                },
+              ],
+            },
+          ],
         },
       });
     }
-    
-    if(name === "add-class") {
-      classesList.push(req.body.data.options[0].value);
-      
-      return res.send({
-         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: "Class successfully added!",
-        }
-      });
-    }
+
+    //     if (name === "classes") {
+    //       const embed = {
+    //         title: "All Classes",
+    //         description:
+    //           "Type `/add-class` to add a class, or type `/remove-class` to remove a class.",
+    //         color: 7793062,
+    //         footer: {
+    //           icon_url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+    //           text: "Total: " + classesList.length,
+    //         },
+    //         thumbnail: {
+    //           url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+    //         },
+    //         fields: [
+    //           {
+    //             name: "Current List of Available Classes:",
+    //             value:
+    //               classesList.length === 0
+    //                 ? "Type `/add_class` to get started!"
+    //                 : "```\n" + classesList.map((className, index) => `${index + 1}. ${className}`).join('\n') + "\n```",
+    //           },
+    //         ],
+    //       };
+
+    //       return res.send({
+    //         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    //         data: {
+    //           embeds: [embed],
+    //           components: [
+    //             {
+    //               type: 1,
+    //               components: [
+    //                 {
+    //                   type: 2,
+    //                   custom_id: "choose_btn",
+    //                   style: 1,
+    //                   label: "Choose...",
+    //                 }
+    //               ]
+    //             }
+    //           ]
+    //         },
+    //       });
+    //     }
+
+    //     if(name === "add-class") {
+    //       classesList.push(req.body.data.options[0].value);
+
+    //       return res.send({
+    //          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    //         data: {
+    //           content: "Class successfully added!",
+    //         }
+    //       });
+    //     }
+
+    //     if(name === "remove-class") {
+    //       var index = req.body.data.options[0].value-1;
+
+    //       if (index >= 0 && index < classesList.length)
+    //       classesList.splice(index, 1);
+
+    //       return res.send({
+    //          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    //         data: {
+    //           content: "Class successfully removed!",
+    //         }
+    //       });
+    //     }
 
     if (name === "calculate") {
       var allClassAvgList = [
