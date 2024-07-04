@@ -16,8 +16,22 @@ const HI_COMMAND = {
 
 const CLASSES_COMMAND = {
   name: "classes",
-  description: "Choose your classes",
+  description: "View the current list of classes",
   type: 1,
+}
+
+const ADDCLASS_COMMAND = {
+  name: "add-class",
+  description: "Add a class to the list of available classes",
+  type: 1,
+  options: [
+    {
+      type: 3,
+      name: "class",
+      description: "Enter the name of the class",
+      required: true,
+    }
+  ]
 }
 
 // Command containing options
@@ -133,7 +147,7 @@ const CALCULATE_COMMAND = {
   type: 1,
 };
 
-const ALL_COMMANDS = [TEST_COMMAND, HI_COMMAND, CLASSES_COMMAND, CALCULATE_COMMAND];
+const ALL_COMMANDS = [TEST_COMMAND, HI_COMMAND, CLASSES_COMMAND, ADDCLASS_COMMAND, CALCULATE_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
 
