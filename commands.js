@@ -8,6 +8,18 @@ const TEST_COMMAND = {
   type: 1,
 };
 
+const HI_COMMAND = {
+  name: "hi",
+  description: "Say hi to Gerald!",
+  type: 1,
+};
+
+const CLASSES_COMMAND = {
+  name: "classes",
+  description: "Choose your classes",
+  type: 1,
+}
+
 // Command containing options
 const CALCULATE_COMMAND = {
   name: "calculate",
@@ -15,7 +27,7 @@ const CALCULATE_COMMAND = {
   options: [
     {
       type: 4,
-      name: "1",
+      name: "grade1",
       description: "Enter your grade in class 1",
       required: true,
     },
@@ -27,21 +39,21 @@ const CALCULATE_COMMAND = {
       choices: [
         {
           name: "REG",
-          value: "regular",
+          value: "REG",
         },
         {
           name: "MAP",
-          value: "map",
+          value: "MAP",
         },
         {
           name: "AP",
-          value: "advanced",
+          value: "AP",
         },
       ],
     },
     {
       type: 4,
-      name: "2",
+      name: "grade2",
       description: "Enter your grade in class 2",
       required: true,
     },
@@ -53,21 +65,21 @@ const CALCULATE_COMMAND = {
       choices: [
         {
           name: "REG",
-          value: "regular",
+          value: "REG",
         },
         {
           name: "MAP",
-          value: "map",
+          value: "MAP",
         },
         {
           name: "AP",
-          value: "advanced",
+          value: "AP",
         },
       ],
     },
     {
       type: 4,
-      name: "3",
+      name: "grade3",
       description: "Enter your grade in class 3",
       required: true,
     },
@@ -79,21 +91,21 @@ const CALCULATE_COMMAND = {
        choices: [
         {
           name: "REG",
-          value: "regular",
+          value: "REG",
         },
         {
           name: "MAP",
-          value: "map",
+          value: "MAP",
         },
         {
           name: "AP",
-          value: "advanced",
+          value: "AP",
         },
       ],
     },
     {
       type: 4,
-      name: "4",
+      name: "grade4",
       description: "Enter your grade in class 4",
       required: true,
     },
@@ -105,15 +117,15 @@ const CALCULATE_COMMAND = {
        choices: [
         {
           name: "REG",
-          value: "regular",
+          value: "REG",
         },
         {
           name: "MAP",
-          value: "map",
+          value: "MAP",
         },
         {
           name: "AP",
-          value: "advanced",
+          value: "AP",
         },
       ],
     },
@@ -121,7 +133,7 @@ const CALCULATE_COMMAND = {
   type: 1,
 };
 
-const ALL_COMMANDS = [TEST_COMMAND, CALCULATE_COMMAND];
+const ALL_COMMANDS = [TEST_COMMAND, HI_COMMAND, CLASSES_COMMAND, CALCULATE_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
 

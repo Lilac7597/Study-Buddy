@@ -18,6 +18,15 @@ app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
 
 // Store for in-progress games. In production, you'd want to use a DB
 const eventsList = {};
+//Gerald's responses
+var responsesList = [
+  "STUDY HARDER!!!",
+  "ew its you",
+  "smh",
+  "what are you doing here",
+  "ur annoying",
+  "bye",
+];
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
@@ -51,41 +60,107 @@ app.post("/interactions", async function (req, res) {
       });
     }
 
+    if (name === "hi") {
+      // Send a message into the channel where command was triggered from
+
+      var random = Math.floor(Math.random() * responsesList.length);
+
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "" + responsesList[random],
+        },
+      });
+    }
+
+    if (name === "classes") {
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "Select the classes you are currently taking: ",
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 3,
+                  custom_id: "class_select",
+                  placeholder: "Select classes",
+                  options: [
+                    {
+                      label: "Math",
+                      value: "math",
+                    },
+                    {
+                      label: "Science",
+                      value: "science",
+                    },
+                    {
+                      label: "History",
+                      value: "history",
+                    },
+                    {
+                      label: "English",
+                      value: "english",
+                    },
+                    {
+                      label: "Physical Education",
+                      value: "pe",
+                    },
+                  ],
+                  min_values: 1,
+                  max_values: 5,
+                },
+              ],
+            },
+          ],
+        },
+      });
+    }
+
     if (name === "calculate") {
-      
-      var allClassAvgList = [req.body.data.options[0].value, req.body.data.options[2].value, req.body.data.options[4].value, req.body.data.options[6].value];
-      var allClassWeightsList = [req.body.data.options[1].value, req.body.data.options[3].value, req.body.data.options[5].value, req.body.data.options[7].value];
+      var allClassAvgList = [
+        req.body.data.options[0].value,
+        req.body.data.options[2].value,
+        req.body.data.options[4].value,
+        req.body.data.options[6].value,
+      ];
+      var allClassWeightsList = [
+        req.body.data.options[1].value,
+        req.body.data.options[3].value,
+        req.body.data.options[5].value,
+        req.body.data.options[7].value,
+      ];
       var sum = 0;
-      for(var i = 0; i < allClassAvgList.length; i++){
+      for (var i = 0; i < allClassAvgList.length; i++) {
         var decrement = 4;
         var count = 0;
         var classGPA;
-        if(allClassWeightsList[i] == "REG"){
+        if (allClassWeightsList[i] == "REG") {
           classGPA = 5;
-        } else if(allClassWeightsList[i] == "MAP"){
+        } else if (allClassWeightsList[i] == "MAP") {
           classGPA = 5.5;
-        } else if(allClassWeightsList[i] == "AP"){
+        } else if (allClassWeightsList[i] == "AP") {
           classGPA = 6;
         }
-        for(var j = 97; j > allClassAvgList[i]; j -= decrement){
+        for (var j = 97; j > allClassAvgList[i]; j -= decrement) {
           classGPA = classGPA - 0.2;
-          if(count == 0){
+          if (count == 0) {
             decrement = 4;
           } else {
             decrement = 3;
           }
           count = (count + 1) % 3;
         }
-        if(allClassAvgList[i] < 70){
+        if (allClassAvgList[i] < 70) {
           classGPA = 0;
-        } else if(allClassAvgList[i] == 70){
+        } else if (allClassAvgList[i] == 70) {
           classGPA = classGPA - 0.4;
         }
         sum += classGPA;
       }
-      var GPA = sum/allClassAvgList.length;
-      
-      
+      var GPA = sum / allClassAvgList.length;
+
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
