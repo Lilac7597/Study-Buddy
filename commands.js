@@ -48,6 +48,24 @@ const REMOVECLASS_COMMAND = {
   ]
 }
 
+const EVENTS_COMMAND = {
+  name: "events",
+  description: "View a list of upcoming events",
+  type: 1,
+}
+
+const ADDEVENT_COMMAND = {
+  name: "add-event",
+  description: "Add an event",
+  type: 1,
+}
+
+const REMOVEEVENT_COMMAND = {
+  name: "remove-event",
+  description: "Remove an event",
+  type: 1,
+}
+
 // Command containing options
 const CALCULATE_COMMAND = {
   name: "calculate",
@@ -161,7 +179,8 @@ const CALCULATE_COMMAND = {
   type: 1,
 };
 
-const ALL_COMMANDS = [TEST_COMMAND, HI_COMMAND, CLASSES_COMMAND, ADDCLASS_COMMAND, REMOVECLASS_COMMAND, CALCULATE_COMMAND];
+const ALL_COMMANDS = [TEST_COMMAND, HI_COMMAND, CLASSES_COMMAND, ADDCLASS_COMMAND, REMOVECLASS_COMMAND,
+                      EVENTS_COMMAND, ADDEVENT_COMMAND, REMOVEEVENT_COMMAND, CALCULATE_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
 

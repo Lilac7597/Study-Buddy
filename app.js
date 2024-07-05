@@ -86,50 +86,7 @@ app.post("/interactions", async function (req, res) {
         },
       });
     }
-
-    if (name === "add-class") {
-      const className = req.body.data.options[0].value;
-      const d = readData(); // Read data from JSON file
-
-      d.classesList.push(className); // Add the class to the list
-      d.classesMap.push({ class: className, users: [] });
-      writeData(d); // Write updated data back to the JSON file
-
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `Class "${className}" successfully added!`,
-        },
-      });
-    }
-
-    if (name === "remove-class") {
-      const index = req.body.data.options[0].value - 1;
-
-      const d = readData(); // Read data from JSON file
-
-      if (index >= 0 && index < d.classesList.length) {
-        d.classesList.splice(index, 1); // Remove the class at the specified index
-        d.classesMap.splice(index, 1);
-        writeData(d); // Write updated data back to the JSON file
-
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: `Class successfully removed! Current number of classes: ${d.classesList.length}`,
-          },
-        });
-      } else {
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: "Index not found.",
-            ephemeral: true,
-          },
-        });
-      }
-    }
-
+    
     if (name === "classes") {
       const d = readData(); // Read data from JSON file
 
@@ -183,6 +140,58 @@ app.post("/interactions", async function (req, res) {
                 ],
         },
       });
+    }
+
+    if (name === "add-class") {
+      const className = req.body.data.options[0].value;
+      const d = readData(); // Read data from JSON file
+
+      d.classesList.push(className); // Add the class to the list
+      d.classesMap.push({ class: className, users: [] });
+      writeData(d); // Write updated data back to the JSON file
+
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `Class "${className}" successfully added!`,
+        },
+      });
+    }
+
+    if (name === "remove-class") {
+      const index = req.body.data.options[0].value - 1;
+
+      const d = readData(); // Read data from JSON file
+
+      if (index >= 0 && index < d.classesList.length) {
+        d.classesList.splice(index, 1); // Remove the class at the specified index
+        d.classesMap.splice(index, 1);
+        writeData(d); // Write updated data back to the JSON file
+
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Class successfully removed! Current number of classes: ${d.classesList.length}`,
+          },
+        });
+      } else {
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: "Index not found.",
+            ephemeral: true,
+          },
+        });
+      }
+    }
+    
+    if(name === "events"){
+      return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            embed: 
+          },
+        });
     }
 
     if (name === "calculate") {
@@ -326,49 +335,6 @@ app.listen(PORT, () => {
   console.log("Listening on port", PORT);
 });
 
-/* return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: "Select the classes you are currently taking: ",
-          components: [
-            {
-              type: 1,
-              components: [
-                {
-                  type: 3,
-                  custom_id: "class_select",
-                  placeholder: "Select classes",
-                  options: [
-                    {
-                      label: "Math",
-                      value: "math",
-                    },
-                    {
-                      label: "Science",
-                      value: "science",
-                    },
-                    {
-                      label: "History",
-                      value: "history",
-                    },
-                    {
-                      label: "English",
-                      value: "english",
-                    },
-                    {
-                      label: "Physical Education",
-                      value: "pe",
-                    },
-                  ],
-                  min_values: 1,
-                  max_values: 5,
-                },
-              ],
-            },
-          ],
-        },
-      }); */
-
 async function getClassesOptions() {
   const d = readData();
   var options = [];
@@ -381,3 +347,6 @@ async function getClassesOptions() {
 
   return options;
 }
+
+//TODO:
+//add todo list :) (how ironic)
