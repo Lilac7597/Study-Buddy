@@ -13,6 +13,55 @@ import {
   VerifyDiscordRequest,
   DiscordRequest,
 } from "./utils.js";
+import cron from "node-cron";
+import { Client, GatewayIntentBits } from "discord.js";
+import { config } from "dotenv";
+
+// Load environment variables from a .env file
+config();
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+client.once("ready", () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+
+  cron.schedule(
+    "31 18 * * *",
+    () => {
+      const d = readData();
+      const tmr = new Date();
+      tmr.setDate(tmr.getDate() + 1);
+      const message = ["hi"];
+
+      const tmrStr = `${String(tmr.getMonth() + 1).padStart(2, "0")}-${String(
+        tmr.getDate()
+      ).padStart(2, "0")}-${String(tmr.getFullYear()).slice(-2)}`;
+
+      const tmrEvents = d.eventsMap.filter((event) => event.date === tmrStr);
+
+      for (var i = 0; i < tmrEvents.length; i++) {
+        for (var j = 0; j < classesMap.length; j++) {
+          if (tmrEvents[i].class === classesMap[j].class) {
+            message.push(
+              classesMap[j].users.map((entry) => `<@${entry}>`).join(" ")
+            );
+            message.push(
+              `Don't forget! You have a(n) ${tmrEvents[i].name} tomorrow!\n`
+            );
+          }
+        }
+      }
+      const channelId = process.env.CHANNEL_ID; // Use environment variable for channel ID
+      const channel = client.channels.cache.get(channelId);
+
+      channel.send(message.join("\n"));
+    },
+    {
+      timezone: "America/Chicago",
+    }
+  );
+});
+client.login(process.env.BOT_TOKEN);
 
 // Create an express app
 const app = express();
@@ -204,7 +253,7 @@ app.post("/interactions", async function (req, res) {
         fields: [
           {
             name: "List of Upcoming Events:",
-            value: 
+            value:
               d.eventsMap.length === 0
                 ? "Type `/add-event` to get started!"
                 : "```\n" +
@@ -264,6 +313,15 @@ app.post("/interactions", async function (req, res) {
           name: eventName,
           date: eventDate,
         });
+
+        d.eventsMap.sort((a, b) => {
+          const [aMonth, aDay, aYear] = a.date.split("-").map(Number);
+          const [bMonth, bDay, bYear] = b.date.split("-").map(Number);
+          const dateA = new Date(aYear, aMonth - 1, aDay); // Months are 0-based in JS
+          const dateB = new Date(bYear, bMonth - 1, bDay);
+          return dateA - dateB;
+        });
+
         writeData(d);
       }
 
@@ -454,8 +512,6 @@ async function getClassesOptions() {
 
   return options;
 }
-
-
 
 //TODO:
 //add todo list :) (how ironic)
