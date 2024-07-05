@@ -1,4 +1,33 @@
 {
-  "classesList": [],
-  "classesMap": []
+  "classesList": [
+    "ela"
+  ],
+  "classesMap": [
+    {
+      "class": "ela",
+      "users": []
+    }
+  ],
+  "eventsMap": [
+    {
+      "class": "ela",
+      "name": "test",
+      "date": "07-06-24"
+    },
+    {
+      "class": "ela",
+      "name": "tes",
+      "date": "07-06-24"
+    },
+    {
+      "class": "ela",
+      "name": "tes",
+      "date": "07-06-24"
+    },
+    {
+      "class": "ela",
+      "name": "test",
+      "date": "07-06-24"
+    }
+  ]
 }

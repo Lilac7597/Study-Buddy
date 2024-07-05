@@ -86,7 +86,7 @@ app.post("/interactions", async function (req, res) {
         },
       });
     }
-    
+
     if (name === "classes") {
       const d = readData(); // Read data from JSON file
 
@@ -184,14 +184,108 @@ app.post("/interactions", async function (req, res) {
         });
       }
     }
-    
-    if(name === "events"){
+
+    if (name === "events") {
+      const d = readData();
+
+      const embed = {
+        title: "Upcoming Events",
+        description:
+          "Type `/add-event` to add an event, or type `/remove-event` to remove an event.",
+        color: 7793062,
+        footer: {
+          icon_url:
+            "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+          text: `Total: ${d.eventsMap.length}`,
+        },
+        thumbnail: {
+          url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+        },
+        fields: [
+          {
+            name: "List of Upcoming Events:",
+            value:
+              d.eventsMap.length === 0
+                ? "Type `/add-event` to get started!"
+                : "```\n" +
+                  d.eventsMap
+                    .map((entry, index) => {
+                      const className = entry.class.padEnd(15);
+                      const eventName = entry.name.padEnd(20);
+                      const eventDate = entry.date.padEnd(10);
+                      return `${
+                        index + 1
+                      }. ${className} ${eventName} ${eventDate}`;
+                    })
+                    .join("\n") +
+                  "\n```",
+          },
+        ],
+      };
+
       return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          embed: [embed],
+        },
+      });
+    }
+
+    if (name == "add-event") {
+      const d = readData();
+      var className = d.classesList[req.body.data.options[0].value - 1];
+      var eventName = req.body.data.options[1].value;
+      var eventDate = req.body.data.options[2].value;
+
+      const datePattern = /^\d{2}-\d{2}-\d{2}$/;
+      const dateObj = new Date(eventDate);
+      if (!datePattern.test(eventDate) || isNaN(dateObj.getTime())) {
+        return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            embed: 
+            content: "Invalid date. Please use MM-DD-YY format.",
+            ephemeral: true,
           },
         });
+      } else if (
+        req.body.data.options[0].value <= 0 ||
+        req.body.data.options[0].value > d.classesList.length
+      ) {
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: "Class number not found.",
+            ephemeral: true,
+          },
+        });
+      } else {
+        d.eventsMap.push({
+          class: className,
+          name: eventName,
+          date: eventDate,
+        });
+        writeData(d);
+      }
+
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `Event "${eventName}" successfully added!` + d.eventsMap[0].class +
+    " " +
+    d.eventsMap[0].name +
+    " " +
+    d.eventsMap[0].date,
+        },
+      });
+    }
+
+    if (name === "remove-event") {
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `Event successfully removed!`,
+        },
+      });
     }
 
     if (name === "calculate") {

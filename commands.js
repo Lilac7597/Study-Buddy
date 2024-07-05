@@ -18,7 +18,7 @@ const CLASSES_COMMAND = {
   name: "classes",
   description: "View the current list of classes",
   type: 1,
-}
+};
 
 const ADDCLASS_COMMAND = {
   name: "add-class",
@@ -30,9 +30,9 @@ const ADDCLASS_COMMAND = {
       name: "class",
       description: "Enter the name of the class",
       required: true,
-    }
-  ]
-}
+    },
+  ],
+};
 
 const REMOVECLASS_COMMAND = {
   name: "remove-class",
@@ -44,27 +44,55 @@ const REMOVECLASS_COMMAND = {
       name: "class-number",
       description: "Enter the class number",
       required: true,
-    }
-  ]
-}
+    },
+  ],
+};
 
 const EVENTS_COMMAND = {
   name: "events",
   description: "View a list of upcoming events",
   type: 1,
-}
+};
 
 const ADDEVENT_COMMAND = {
   name: "add-event",
   description: "Add an event",
   type: 1,
-}
+  options: [
+    {
+      type: 4,
+      name: "class-number",
+      description: "Enter the class number of the class this event is associated with.",
+      required: true,
+    },
+    {
+      type: 3,
+      name: "event-name",
+      description: "Enter the name of the event",
+      required: true,
+    },
+    {
+      type: 3,
+      name: "event-date",
+      description: "Enter the date the event takes place, in MM-DD-YY format.",
+      required: true,
+    },
+  ],
+};
 
 const REMOVEEVENT_COMMAND = {
   name: "remove-event",
   description: "Remove an event",
   type: 1,
-}
+  options: [
+    {
+      type: 4,
+      name: "event-number",
+      description: "Enter the event number",
+      required: true,
+    }
+  ]
+};
 
 // Command containing options
 const CALCULATE_COMMAND = {
@@ -134,7 +162,7 @@ const CALCULATE_COMMAND = {
       name: "type3",
       description: "Choose your class 3 type",
       required: true,
-       choices: [
+      choices: [
         {
           name: "REG",
           value: "REG",
@@ -160,7 +188,7 @@ const CALCULATE_COMMAND = {
       name: "type4",
       description: "Choose your class 4 type",
       required: true,
-       choices: [
+      choices: [
         {
           name: "REG",
           value: "REG",
@@ -179,8 +207,17 @@ const CALCULATE_COMMAND = {
   type: 1,
 };
 
-const ALL_COMMANDS = [TEST_COMMAND, HI_COMMAND, CLASSES_COMMAND, ADDCLASS_COMMAND, REMOVECLASS_COMMAND,
-                      EVENTS_COMMAND, ADDEVENT_COMMAND, REMOVEEVENT_COMMAND, CALCULATE_COMMAND];
+const ALL_COMMANDS = [
+  TEST_COMMAND,
+  HI_COMMAND,
+  CLASSES_COMMAND,
+  ADDCLASS_COMMAND,
+  REMOVECLASS_COMMAND,
+  EVENTS_COMMAND,
+  ADDEVENT_COMMAND,
+  REMOVEEVENT_COMMAND,
+  CALCULATE_COMMAND,
+];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
 
