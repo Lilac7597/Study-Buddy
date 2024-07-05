@@ -204,15 +204,15 @@ app.post("/interactions", async function (req, res) {
         fields: [
           {
             name: "List of Upcoming Events:",
-            value:
+            value: 
               d.eventsMap.length === 0
                 ? "Type `/add-event` to get started!"
                 : "```\n" +
                   d.eventsMap
                     .map((entry, index) => {
                       const className = entry.class.padEnd(15);
-                      const eventName = entry.name.padEnd(20);
-                      const eventDate = entry.date.padEnd(10);
+                      const eventName = entry.name.padEnd(17);
+                      const eventDate = entry.date.padEnd(8);
                       return `${
                         index + 1
                       }. ${className} ${eventName} ${eventDate}`;
@@ -226,7 +226,7 @@ app.post("/interactions", async function (req, res) {
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          embed: [embed],
+          embeds: [embed],
         },
       });
     }
@@ -270,22 +270,35 @@ app.post("/interactions", async function (req, res) {
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `Event "${eventName}" successfully added!` + d.eventsMap[0].class +
-    " " +
-    d.eventsMap[0].name +
-    " " +
-    d.eventsMap[0].date,
+          content: `Event "${eventName}" successfully added!`,
         },
       });
     }
 
     if (name === "remove-event") {
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `Event successfully removed!`,
-        },
-      });
+      const index = req.body.data.options[0].value - 1;
+
+      const d = readData(); // Read data from JSON file
+
+      if (index >= 0 && index < d.eventsMap.length) {
+        d.eventsMap.splice(index, 1); // Remove the class at the specified index
+        writeData(d); // Write updated data back to the JSON file
+
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Event successfully removed! Current number of events: ${d.eventsMap.length}`,
+          },
+        });
+      } else {
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: "Index not found.",
+            ephemeral: true,
+          },
+        });
+      }
     }
 
     if (name === "calculate") {
@@ -441,6 +454,8 @@ async function getClassesOptions() {
 
   return options;
 }
+
+
 
 //TODO:
 //add todo list :) (how ironic)

@@ -11,23 +11,13 @@
   "eventsMap": [
     {
       "class": "ela",
-      "name": "test",
-      "date": "07-06-24"
-    },
-    {
-      "class": "ela",
-      "name": "tes",
-      "date": "07-06-24"
-    },
-    {
-      "class": "ela",
       "name": "tes",
       "date": "07-06-24"
     },
     {
       "class": "ela",
       "name": "test",
-      "date": "07-06-24"
+      "date": "07-08-24"
     }
   ]
 }
