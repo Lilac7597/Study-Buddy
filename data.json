@@ -14,18 +14,29 @@
     },
     {
       "class": "MAP Algebra 2",
-      "users": []
+      "users": [
+        "690231745034977290"
+      ]
     },
     {
       "class": "AP World Hist.",
-      "users": []
+      "users": [
+        "690231745034977290"
+      ]
     },
     {
       "class": "MAP Chemistry",
-      "users": []
+      "users": [
+        "690231745034977290"
+      ]
     }
   ],
   "eventsMap": [
+    {
+      "class": "MAP Algebra 2",
+      "name": "test",
+      "date": "07-05-24"
+    },
     {
       "class": "MAP Algebra 2",
       "name": "Unit 2 Test",

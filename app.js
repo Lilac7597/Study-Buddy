@@ -14,7 +14,7 @@ import {
   DiscordRequest,
 } from "./utils.js";
 import cron from "node-cron";
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client, GatewayIntentBits, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from "discord.js";
 import { config } from "dotenv";
 
 // Load environment variables from a .env file
@@ -26,28 +26,28 @@ client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
   cron.schedule(
-    "* * * * * *",
+    "* * * * *",
     async () => {
       const d = readData();
-      
+
       const channelId = process.env.CHANNEL_ID; // Use environment variable for channel ID
       const channel = await client.channels.fetch(channelId);
-      
+
       //delete today's events from event list
       const td = new Date();
-      td.setDate(td.getDate()-1);
+      td.setDate(td.getDate() - 1);
       const tdStr = `${String(td.getMonth() + 1).padStart(2, "0")}-${String(
         td.getDate()
       ).padStart(2, "0")}-${String(td.getFullYear()).slice(-2)}`;
-      
+
       d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
-      
+
       writeData(d);
-      
+
       //notify users of tmr's events
       const tmr = new Date();
       tmr.setDate(tmr.getDate());
-      
+
       const tmrStr = `${String(tmr.getMonth() + 1).padStart(2, "0")}-${String(
         tmr.getDate()
       ).padStart(2, "0")}-${String(tmr.getFullYear()).slice(-2)}`;
@@ -56,20 +56,27 @@ client.once("ready", () => {
 
       for (var i = 0; i < tmrEvents.length; i++) {
         for (var j = 0; j < d.classesMap.length; j++) {
-          if (tmrEvents[i].class === d.classesMap[j].class && d.classesMap[j].users.length > 0) {
+          if (
+            tmrEvents[i].class === d.classesMap[j].class &&
+            d.classesMap[j].users.length > 0
+          ) {
             const message = [];
-            
+
             message.push(
-              d.classesMap[j].users.map((entry) => `<@${Number(entry)}>`).join(" ")
+              d.classesMap[j].users
+                .map((entry) => `<@${entry}>`)
+                .join(" ")
             );
             message.push(
               `Don't forget! You have a(n) ${tmrEvents[i].class}: ${tmrEvents[i].name} tomorrow!\n`
             );
-            
-            await channel.send(message.join('\n'));
+
+            await channel.send(message.join("\n"));
           }
         }
       }
+      
+      await channel.send("hi");
     },
     {
       timezone: "America/Chicago",
@@ -375,6 +382,21 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "calculate") {
+      
+      const modal = new ModalBuilder()
+        .setCustomId('my_modal')
+        .setTitle('My Modal Title')
+        .addComponents(
+          new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+              .setCustomId('text_input')
+              .setLabel('Your Text Input')
+              .setStyle(TextInputStyle.Short)
+              .setPlaceholder('Enter something...')
+              .setRequired(true)
+          )
+        );
+      
       var allClassAvgList = [
         req.body.data.options[0].value,
         req.body.data.options[2].value,
@@ -476,25 +498,24 @@ app.post("/interactions", async function (req, res) {
       //get user's id
       const userId = String(req.body.member.user.id);
       const d = readData();
-      var selected = [];
-      
-      for(var i = 0; i < d.classesMap.length; i++){
-          if(d.classesMap[i].users.includes(userId)){
-            d.classesMap[i].users.splice(d.classesMap[i].users.indexOf(userId), 1);
-          }
-        }
+      var selected = data.values;
 
-      for (var i = 0; i < data.values.length; i++) {
-        selected.push(data.values[i]);
-        for (var j = 0; j < d.classesMap.length; j++) {
-          if (d.classesMap[j].class === data.values[i])
-            if (!d.classesMap[i].users.includes(userId)) {
-              d.classesMap[j].users.push(userId);
-            }
-          break;
+      for (var i = 0; i < d.classesMap.length; i++) {
+        if (d.classesMap[i].users.includes(userId)) {
+          d.classesMap[i].users.splice(
+            d.classesMap[i].users.indexOf(userId),
+            1
+          );
         }
       }
-      
+
+      d.classesMap.forEach((cls) => {
+        // Check if the class is selected and the userId is not already in the users list
+        if (selected.includes(cls.class) && !cls.users.includes(userId)) {
+          cls.users.push(userId); // Add userId to the users list
+        }
+      });
+
       writeData(d);
 
       // Delete message with token in request body
@@ -506,7 +527,7 @@ app.post("/interactions", async function (req, res) {
             content:
               "You will now be notified of any upcoming quizzes, tests, or events from these classes: " +
               "```\n" +
-              selected.join("\n") + 
+              selected.join("\n") +
               "\n```",
           },
         });

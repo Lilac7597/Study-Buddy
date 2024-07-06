@@ -4,31 +4,31 @@ import { InstallGlobalCommands } from "./utils.js";
 // Simple test command
 const TEST_COMMAND = {
   name: "test",
-  description: "Basic command",
+  description: "See if Gerald works.",
   type: 1,
 };
 
 const HI_COMMAND = {
   name: "hi",
-  description: "Say hi to Gerald!",
+  description: "Say hi to Gerald!.",
   type: 1,
 };
 
 const CLASSES_COMMAND = {
   name: "classes",
-  description: "View the current list of classes",
+  description: "View the current list of classes.",
   type: 1,
 };
 
 const ADDCLASS_COMMAND = {
   name: "add-class",
-  description: "Add a class",
+  description: "Add a class.",
   type: 1,
   options: [
     {
       type: 3,
       name: "class",
-      description: "Enter the name of the class",
+      description: "Enter the name of the class.",
       required: true,
     },
   ],
@@ -36,13 +36,13 @@ const ADDCLASS_COMMAND = {
 
 const REMOVECLASS_COMMAND = {
   name: "remove-class",
-  description: "Remove a class",
+  description: "Remove a class.",
   type: 1,
   options: [
     {
       type: 4,
       name: "class-number",
-      description: "Enter the class number",
+      description: "Enter the class number.",
       required: true,
     },
   ],
@@ -50,13 +50,13 @@ const REMOVECLASS_COMMAND = {
 
 const EVENTS_COMMAND = {
   name: "events",
-  description: "View a list of upcoming events",
+  description: "View the list of upcoming events.",
   type: 1,
 };
 
 const ADDEVENT_COMMAND = {
   name: "add-event",
-  description: "Add an event",
+  description: "Add an event.",
   type: 1,
   options: [
     {
@@ -68,7 +68,7 @@ const ADDEVENT_COMMAND = {
     {
       type: 3,
       name: "event-name",
-      description: "Enter the name of the event",
+      description: "Enter the name of the event.",
       required: true,
     },
     {
@@ -82,13 +82,13 @@ const ADDEVENT_COMMAND = {
 
 const REMOVEEVENT_COMMAND = {
   name: "remove-event",
-  description: "Remove an event",
+  description: "Remove an event.",
   type: 1,
   options: [
     {
       type: 4,
       name: "event-number",
-      description: "Enter the event number",
+      description: "Enter the event number.",
       required: true,
     }
   ]
@@ -97,7 +97,7 @@ const REMOVEEVENT_COMMAND = {
 // Command containing options
 const CALCULATE_COMMAND = {
   name: "calculate",
-  description: "Calculate your GPA",
+  description: "Calculate your GPA.",
   options: [
     {
       type: 4,
