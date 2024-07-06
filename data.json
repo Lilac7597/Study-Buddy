@@ -1,28 +1,45 @@
 {
   "classesList": [
-    "ela"
+    "MAP Pre-Calc",
+    "MAP Algebra 2",
+    "AP World Hist.",
+    "MAP Chemistry"
   ],
   "classesMap": [
     {
-      "class": "ela",
+      "class": "MAP Pre-Calc",
+      "users": [
+        "690231745034977290"
+      ]
+    },
+    {
+      "class": "MAP Algebra 2",
+      "users": []
+    },
+    {
+      "class": "AP World Hist.",
+      "users": []
+    },
+    {
+      "class": "MAP Chemistry",
       "users": []
     }
   ],
   "eventsMap": [
     {
-      "class": "ela",
-      "name": "tes",
+      "class": "MAP Algebra 2",
+      "name": "Unit 2 Test",
       "date": "07-06-24"
     },
     {
-      "class": "ela",
-      "name": "testa",
-      "date": "07-07-24"
+      "class": "AP World Hist.",
+      "name": "Unit 3 Test",
+      "date": "07-06-24"
     },
     {
-      "class": "ela",
-      "name": "test",
-      "date": "07-08-24"
+      "class": "MAP Chemistry",
+      "name": "Unit 4 Test",
+      "date": "07-07-24"
     }
   ]
 }

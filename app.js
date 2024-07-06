@@ -26,13 +26,28 @@ client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
   cron.schedule(
-    "31 18 * * *",
-    () => {
+    "* * * * * *",
+    async () => {
       const d = readData();
+      
+      const channelId = process.env.CHANNEL_ID; // Use environment variable for channel ID
+      const channel = await client.channels.fetch(channelId);
+      
+      //delete today's events from event list
+      const td = new Date();
+      td.setDate(td.getDate()-1);
+      const tdStr = `${String(td.getMonth() + 1).padStart(2, "0")}-${String(
+        td.getDate()
+      ).padStart(2, "0")}-${String(td.getFullYear()).slice(-2)}`;
+      
+      d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
+      
+      writeData(d);
+      
+      //notify users of tmr's events
       const tmr = new Date();
-      tmr.setDate(tmr.getDate() + 1);
-      const message = ["hi"];
-
+      tmr.setDate(tmr.getDate());
+      
       const tmrStr = `${String(tmr.getMonth() + 1).padStart(2, "0")}-${String(
         tmr.getDate()
       ).padStart(2, "0")}-${String(tmr.getFullYear()).slice(-2)}`;
@@ -40,28 +55,28 @@ client.once("ready", () => {
       const tmrEvents = d.eventsMap.filter((event) => event.date === tmrStr);
 
       for (var i = 0; i < tmrEvents.length; i++) {
-        for (var j = 0; j < classesMap.length; j++) {
-          if (tmrEvents[i].class === classesMap[j].class) {
+        for (var j = 0; j < d.classesMap.length; j++) {
+          if (tmrEvents[i].class === d.classesMap[j].class && d.classesMap[j].users.length > 0) {
+            const message = [];
+            
             message.push(
-              classesMap[j].users.map((entry) => `<@${entry}>`).join(" ")
+              d.classesMap[j].users.map((entry) => `<@${Number(entry)}>`).join(" ")
             );
             message.push(
-              `Don't forget! You have a(n) ${tmrEvents[i].name} tomorrow!\n`
+              `Don't forget! You have a(n) ${tmrEvents[i].class}: ${tmrEvents[i].name} tomorrow!\n`
             );
+            
+            await channel.send(message.join('\n'));
           }
         }
       }
-      const channelId = process.env.CHANNEL_ID; // Use environment variable for channel ID
-      const channel = client.channels.cache.get(channelId);
-
-      channel.send(message.join("\n"));
     },
     {
       timezone: "America/Chicago",
     }
   );
 });
-client.login(process.env.BOT_TOKEN);
+client.login(process.env.DISCORD_TOKEN);
 
 // Create an express app
 const app = express();
@@ -117,7 +132,7 @@ app.post("/interactions", async function (req, res) {
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: "Omg I'm working!!",
+          content: "Yayy I'm working :D",
         },
       });
     }
@@ -260,11 +275,11 @@ app.post("/interactions", async function (req, res) {
                   d.eventsMap
                     .map((entry, index) => {
                       const className = entry.class.padEnd(15);
-                      const eventName = entry.name.padEnd(17);
+                      const eventName = entry.name.padEnd(15);
                       const eventDate = entry.date.padEnd(8);
                       return `${
                         index + 1
-                      }. ${className} ${eventName} ${eventDate}`;
+                      }. ${className}  ${eventName}  ${eventDate}`;
                     })
                     .join("\n") +
                   "\n```",
@@ -459,20 +474,28 @@ app.post("/interactions", async function (req, res) {
 
     if (componentId === "class_select") {
       //get user's id
-      const userId = req.body.member.user.id;
+      const userId = String(req.body.member.user.id);
       const d = readData();
       var selected = [];
+      
+      for(var i = 0; i < d.classesMap.length; i++){
+          if(d.classesMap[i].users.includes(userId)){
+            d.classesMap[i].users.splice(d.classesMap[i].users.indexOf(userId), 1);
+          }
+        }
 
       for (var i = 0; i < data.values.length; i++) {
         selected.push(data.values[i]);
         for (var j = 0; j < d.classesMap.length; j++) {
-          if (d.classesMap[i].class === data.values[j])
+          if (d.classesMap[j].class === data.values[i])
             if (!d.classesMap[i].users.includes(userId)) {
-              d.classesMap[i].users.push(userId);
+              d.classesMap[j].users.push(userId);
             }
           break;
         }
       }
+      
+      writeData(d);
 
       // Delete message with token in request body
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
@@ -483,7 +506,7 @@ app.post("/interactions", async function (req, res) {
             content:
               "You will now be notified of any upcoming quizzes, tests, or events from these classes: " +
               "```\n" +
-              selected.join("\n") +
+              selected.join("\n") + 
               "\n```",
           },
         });
