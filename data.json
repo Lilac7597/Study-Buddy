@@ -3,7 +3,8 @@
     "MAP Pre-Calc",
     "MAP Algebra 2",
     "AP World Hist.",
-    "MAP Chemistry"
+    "MAP Chemistry",
+    "MAP English II"
   ],
   "classesMap": [
     {
@@ -15,12 +16,14 @@
     {
       "class": "MAP Algebra 2",
       "users": [
+        "601963048344879114",
         "690231745034977290"
       ]
     },
     {
       "class": "AP World Hist.",
       "users": [
+        "601963048344879114",
         "690231745034977290"
       ]
     },
@@ -29,24 +32,14 @@
       "users": [
         "690231745034977290"
       ]
+    },
+    {
+      "class": "MAP English II",
+      "rank": "Ranked",
+      "users": []
     }
   ],
   "eventsMap": [
-    {
-      "class": "MAP Algebra 2",
-      "name": "test",
-      "date": "07-05-24"
-    },
-    {
-      "class": "MAP Algebra 2",
-      "name": "Unit 2 Test",
-      "date": "07-06-24"
-    },
-    {
-      "class": "AP World Hist.",
-      "name": "Unit 3 Test",
-      "date": "07-06-24"
-    },
     {
       "class": "MAP Chemistry",
       "name": "Unit 4 Test",

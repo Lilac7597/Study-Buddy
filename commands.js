@@ -31,6 +31,12 @@ const ADDCLASS_COMMAND = {
       description: "Enter the name of the class.",
       required: true,
     },
+    {
+      type: 5,
+      name: "ranked",
+      description: "Choose whether your class is ranked or unranked.",
+      required: true,
+    },
   ],
 };
 
@@ -62,7 +68,8 @@ const ADDEVENT_COMMAND = {
     {
       type: 4,
       name: "class-number",
-      description: "Enter the class number of the class this event is associated with.",
+      description:
+        "Enter the class number of the class this event is associated with.",
       required: true,
     },
     {
@@ -90,121 +97,138 @@ const REMOVEEVENT_COMMAND = {
       name: "event-number",
       description: "Enter the event number.",
       required: true,
-    }
-  ]
+    },
+  ],
 };
 
 // Command containing options
-const CALCULATE_COMMAND = {
-  name: "calculate",
+const CALCULATEGPA_COMMAND = {
+  name: "calculate-gpa",
   description: "Calculate your GPA.",
+  type: 1,
   options: [
     {
-      type: 4,
-      name: "grade1",
-      description: "Enter your grade in class 1",
-      required: true,
-    },
-    {
       type: 3,
-      name: "type1",
-      description: "Choose your class 1 type",
+      name: "type",
+      description:
+        "Choose whether you want to calculate your ranked GPA or cumulative GPA",
       required: true,
       choices: [
         {
-          name: "REG",
-          value: "REG",
+          name: "Ranked GPA",
+          value: "Ranked",
         },
         {
-          name: "MAP",
-          value: "MAP",
-        },
-        {
-          name: "AP",
-          value: "AP",
+          name: "Cumulative GPA",
+          value: "Cumulative",
         },
       ],
     },
-    {
-      type: 4,
-      name: "grade2",
-      description: "Enter your grade in class 2",
-      required: true,
-    },
-    {
-      type: 3,
-      name: "type2",
-      description: "Choose your class 2 type",
-      required: true,
-      choices: [
-        {
-          name: "REG",
-          value: "REG",
-        },
-        {
-          name: "MAP",
-          value: "MAP",
-        },
-        {
-          name: "AP",
-          value: "AP",
-        },
-      ],
-    },
-    {
-      type: 4,
-      name: "grade3",
-      description: "Enter your grade in class 3",
-      required: true,
-    },
-    {
-      type: 3,
-      name: "type3",
-      description: "Choose your class 3 type",
-      required: true,
-      choices: [
-        {
-          name: "REG",
-          value: "REG",
-        },
-        {
-          name: "MAP",
-          value: "MAP",
-        },
-        {
-          name: "AP",
-          value: "AP",
-        },
-      ],
-    },
-    {
-      type: 4,
-      name: "grade4",
-      description: "Enter your grade in class 4",
-      required: true,
-    },
-    {
-      type: 3,
-      name: "type4",
-      description: "Choose your class 4 type",
-      required: true,
-      choices: [
-        {
-          name: "REG",
-          value: "REG",
-        },
-        {
-          name: "MAP",
-          value: "MAP",
-        },
-        {
-          name: "AP",
-          value: "AP",
-        },
-      ],
-    },
+    // {
+    //   type: 4,
+    //   name: "grade1",
+    //   description: "Enter your grade in class 1",
+    //   required: true,
+    // },
+    // {
+    //   type: 3,
+    //   name: "type1",
+    //   description: "Choose your class 1 type",
+    //   required: true,
+    //   choices: [
+    //     {
+    //       name: "REG",
+    //       value: "REG",
+    //     },
+    //     {
+    //       name: "MAP",
+    //       value: "MAP",
+    //     },
+    //     {
+    //       name: "AP",
+    //       value: "AP",
+    //     },
+    //   ],
+    // },
+    // {
+    //   type: 4,
+    //   name: "grade2",
+    //   description: "Enter your grade in class 2",
+    //   required: true,
+    // },
+    // {
+    //   type: 3,
+    //   name: "type2",
+    //   description: "Choose your class 2 type",
+    //   required: true,
+    //   choices: [
+    //     {
+    //       name: "REG",
+    //       value: "REG",
+    //     },
+    //     {
+    //       name: "MAP",
+    //       value: "MAP",
+    //     },
+    //     {
+    //       name: "AP",
+    //       value: "AP",
+    //     },
+    //   ],
+    // },
+    // {
+    //   type: 4,
+    //   name: "grade3",
+    //   description: "Enter your grade in class 3",
+    //   required: true,
+    // },
+    // {
+    //   type: 3,
+    //   name: "type3",
+    //   description: "Choose your class 3 type",
+    //   required: true,
+    //   choices: [
+    //     {
+    //       name: "REG",
+    //       value: "REG",
+    //     },
+    //     {
+    //       name: "MAP",
+    //       value: "MAP",
+    //     },
+    //     {
+    //       name: "AP",
+    //       value: "AP",
+    //     },
+    //   ],
+    // },
+    // {
+    //   type: 4,
+    //   name: "grade4",
+    //   description: "Enter your grade in class 4",
+    //   required: true,
+    // },
+    //   {
+    //     type: 3,
+    //     name: "type4",
+    //     description: "Choose your class 4 type",
+    //     required: true,
+    //     choices: [
+    //       {
+    //         name: "REG",
+    //         value: "REG",
+    //       },
+    //       {
+    //         name: "MAP",
+    //         value: "MAP",
+    //       },
+    //       {
+    //         name: "AP",
+    //         value: "AP",
+    //       },
+    //     ],
+    //   },
   ],
-  type: 1,
 };
 
 const ALL_COMMANDS = [
@@ -216,7 +240,7 @@ const ALL_COMMANDS = [
   EVENTS_COMMAND,
   ADDEVENT_COMMAND,
   REMOVEEVENT_COMMAND,
-  CALCULATE_COMMAND,
+  CALCULATEGPA_COMMAND,
 ];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);

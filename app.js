@@ -14,76 +14,20 @@ import {
   DiscordRequest,
 } from "./utils.js";
 import cron from "node-cron";
-import { Client, GatewayIntentBits, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from "discord.js";
+import {
+  Client,
+  GatewayIntentBits,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  ActionRowBuilder,
+} from "discord.js";
 import { config } from "dotenv";
 
 // Load environment variables from a .env file
 config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-
-client.once("ready", () => {
-  console.log(`Logged in as ${client.user.tag}!`);
-
-  cron.schedule(
-    "* * * * *",
-    async () => {
-      const d = readData();
-
-      const channelId = process.env.CHANNEL_ID; // Use environment variable for channel ID
-      const channel = await client.channels.fetch(channelId);
-
-      //delete today's events from event list
-      const td = new Date();
-      td.setDate(td.getDate() - 1);
-      const tdStr = `${String(td.getMonth() + 1).padStart(2, "0")}-${String(
-        td.getDate()
-      ).padStart(2, "0")}-${String(td.getFullYear()).slice(-2)}`;
-
-      d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
-
-      writeData(d);
-
-      //notify users of tmr's events
-      const tmr = new Date();
-      tmr.setDate(tmr.getDate());
-
-      const tmrStr = `${String(tmr.getMonth() + 1).padStart(2, "0")}-${String(
-        tmr.getDate()
-      ).padStart(2, "0")}-${String(tmr.getFullYear()).slice(-2)}`;
-
-      const tmrEvents = d.eventsMap.filter((event) => event.date === tmrStr);
-
-      for (var i = 0; i < tmrEvents.length; i++) {
-        for (var j = 0; j < d.classesMap.length; j++) {
-          if (
-            tmrEvents[i].class === d.classesMap[j].class &&
-            d.classesMap[j].users.length > 0
-          ) {
-            const message = [];
-
-            message.push(
-              d.classesMap[j].users
-                .map((entry) => `<@${entry}>`)
-                .join(" ")
-            );
-            message.push(
-              `Don't forget! You have a(n) ${tmrEvents[i].class}: ${tmrEvents[i].name} tomorrow!\n`
-            );
-
-            await channel.send(message.join("\n"));
-          }
-        }
-      }
-      
-      await channel.send("hi");
-    },
-    {
-      timezone: "America/Chicago",
-    }
-  );
-});
-client.login(process.env.DISCORD_TOKEN);
 
 // Create an express app
 const app = express();
@@ -215,10 +159,15 @@ app.post("/interactions", async function (req, res) {
 
     if (name === "add-class") {
       const className = req.body.data.options[0].value;
+      const ranked = req.body.data.options[1].value;
+      const rank = "";
+      if (ranked) rank = "Ranked";
+      else rank = "Unranked";
+
       const d = readData(); // Read data from JSON file
 
       d.classesList.push(className); // Add the class to the list
-      d.classesMap.push({ class: className, users: [] });
+      d.classesMap.push({ class: className, rank: rank, users: [] });
       writeData(d); // Write updated data back to the JSON file
 
       return res.send({
@@ -381,69 +330,81 @@ app.post("/interactions", async function (req, res) {
       }
     }
 
-    if (name === "calculate") {
-      
-      const modal = new ModalBuilder()
-        .setCustomId('my_modal')
-        .setTitle('My Modal Title')
-        .addComponents(
-          new ActionRowBuilder().addComponents(
-            new TextInputBuilder()
-              .setCustomId('text_input')
-              .setLabel('Your Text Input')
-              .setStyle(TextInputStyle.Short)
-              .setPlaceholder('Enter something...')
-              .setRequired(true)
-          )
+    if (name === "calculate-gpa") {
+      const d = readData();
+      const userId = String(req.body.member.user.id);
+      const rank = req.body.data.options[0].value;
+      const filteredClassesMap = d.classesMap;
+      if (rank === "Ranked")
+        filteredClassesMap = filteredClassesMap.filter(
+          (rank) => classesMap.rank === "Ranked"
         );
-      
-      var allClassAvgList = [
-        req.body.data.options[0].value,
-        req.body.data.options[2].value,
-        req.body.data.options[4].value,
-        req.body.data.options[6].value,
-      ];
-      var allClassWeightsList = [
-        req.body.data.options[1].value,
-        req.body.data.options[3].value,
-        req.body.data.options[5].value,
-        req.body.data.options[7].value,
-      ];
-      var sum = 0;
-      for (var i = 0; i < allClassAvgList.length; i++) {
-        var decrement = 4;
-        var count = 0;
-        var classGPA;
-        if (allClassWeightsList[i] == "REG") {
-          classGPA = 5;
-        } else if (allClassWeightsList[i] == "MAP") {
-          classGPA = 5.5;
-        } else if (allClassWeightsList[i] == "AP") {
-          classGPA = 6;
-        }
-        for (var j = 97; j > allClassAvgList[i]; j -= decrement) {
-          classGPA -= 0.2;
-          if (count == 0) {
-            decrement = 4;
-          } else {
-            decrement = 3;
-          }
-          count = (count + 1) % 3;
-        }
-        if (allClassAvgList[i] < 70) {
-          classGPA = 0;
-        } else if (allClassAvgList[i] == 70) {
-          classGPA -= 0.4;
-        }
-        sum += classGPA;
-      }
-      var GPA = sum / allClassAvgList.length;
+      filteredClassesMap = filteredClassesMap.filter((entry) =>
+        entry.users.includes(userId)
+      );
+
+      const modal = new ModalBuilder()
+        .setCustomId("calculateModal")
+        .setTitle(`Calculate Your ${rank} GPA`);
+
+      filteredClassesMap.forEach((entry, index) => {
+        const textInput = new TextInputBuilder()
+          .setCustomId(`text_input_${index}`)
+          .setLabel(`Enter grade for ${entry.class}`)
+          .setStyle(TextInputStyle.Short)
+          .setPlaceholder(`Grade (0-100)`)
+          .setRequired(true);
+
+        const actionRow = new ActionRowBuilder().addComponents(textInput);
+
+        modal.addComponents(actionRow);
+      });
+
+      // var allClassAvgList = [
+      //   req.body.data.options[0].value,
+      //   req.body.data.options[2].value,
+      //   req.body.data.options[4].value,
+      //   req.body.data.options[6].value,
+      // ];
+      // var allClassWeightsList = [
+      //   req.body.data.options[1].value,
+      //   req.body.data.options[3].value,
+      //   req.body.data.options[5].value,
+      //   req.body.data.options[7].value,
+      // ];
+      // var sum = 0;
+      // for (var i = 0; i < allClassAvgList.length; i++) {
+      //   var decrement = 4;
+      //   var count = 0;
+      //   var classGPA;
+      //   if (allClassWeightsList[i] == "REG") {
+      //     classGPA = 5;
+      //   } else if (allClassWeightsList[i] == "MAP") {
+      //     classGPA = 5.5;
+      //   } else if (allClassWeightsList[i] == "AP") {
+      //     classGPA = 6;
+      //   }
+      //   for (var j = 97; j > allClassAvgList[i]; j -= decrement) {
+      //     classGPA -= 0.2;
+      //     if (count == 0) {
+      //       decrement = 4;
+      //     } else {
+      //       decrement = 3;
+      //     }
+      //     count = (count + 1) % 3;
+      //   }
+      //   if (allClassAvgList[i] < 70) {
+      //     classGPA = 0;
+      //   } else if (allClassAvgList[i] == 70) {
+      //     classGPA -= 0.4;
+      //   }
+      //   sum += classGPA;
+      // }
+      // var GPA = sum / allClassAvgList.length;
 
       return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: "Your GPA is: " + GPA,
-        },
+        type: InteractionResponseType.MODAL,
+        data: modal.toJSON(),
       });
     }
   }
@@ -478,7 +439,7 @@ app.post("/interactions", async function (req, res) {
                     placeholder: "Select classes (max 7)",
                     options: await getClassesOptions(),
                     //options: [{ label: "hi", value: "hi" }],
-                    min_values: 1,
+                    min_values: 0,
                     max_values:
                       d.classesList.length < 7 ? d.classesList.length : 7,
                   },
@@ -525,10 +486,12 @@ app.post("/interactions", async function (req, res) {
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             content:
-              "You will now be notified of any upcoming quizzes, tests, or events from these classes: " +
-              "```\n" +
-              selected.join("\n") +
-              "\n```",
+              data.values.length === 0
+                ? "You will not be notified of any upcoming quizzes, tests, or events."
+                : "You will now be notified of any upcoming quizzes, tests, or events from these classes: " +
+                  "```\n" +
+                  selected.join("\n") +
+                  "\n```",
           },
         });
         // Delete previous message
@@ -544,6 +507,65 @@ app.listen(PORT, () => {
   console.log("Listening on port", PORT);
 });
 
+client.once("ready", () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+
+  cron.schedule(
+    "0 20 * * *",
+    async () => {
+      const d = readData();
+
+      const channelId = process.env.CHANNEL_ID; // Use environment variable for channel ID
+      const channel = await client.channels.fetch(channelId);
+
+      //delete today's events from event list
+      const td = new Date();
+      td.setDate(td.getDate() - 1);
+      const tdStr = `${String(td.getMonth() + 1).padStart(2, "0")}-${String(
+        td.getDate()
+      ).padStart(2, "0")}-${String(td.getFullYear()).slice(-2)}`;
+
+      d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
+
+      writeData(d);
+
+      //notify users of tmr's events
+      const tmr = new Date();
+      tmr.setDate(tmr.getDate());
+
+      const tmrStr = `${String(tmr.getMonth() + 1).padStart(2, "0")}-${String(
+        tmr.getDate()
+      ).padStart(2, "0")}-${String(tmr.getFullYear()).slice(-2)}`;
+
+      const tmrEvents = d.eventsMap.filter((event) => event.date === tmrStr);
+
+      for (var i = 0; i < tmrEvents.length; i++) {
+        for (var j = 0; j < d.classesMap.length; j++) {
+          if (
+            tmrEvents[i].class === d.classesMap[j].class &&
+            d.classesMap[j].users.length > 0
+          ) {
+            const message = [];
+
+            message.push(
+              d.classesMap[j].users.map((entry) => `<@${entry}>`).join(" ")
+            );
+            message.push(
+              `Don't forget! You have a(n) ${tmrEvents[i].class}: ${tmrEvents[i].name} tomorrow!\n`
+            );
+
+            await channel.send(message.join("\n"));
+          }
+        }
+      }
+    },
+    {
+      timezone: "America/Chicago",
+    }
+  );
+});
+client.login(process.env.DISCORD_TOKEN);
+
 async function getClassesOptions() {
   const d = readData();
   var options = [];
@@ -558,4 +580,5 @@ async function getClassesOptions() {
 }
 
 //TODO:
+//add modals for calculate
 //add todo list :) (how ironic)
