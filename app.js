@@ -160,7 +160,7 @@ app.post("/interactions", async function (req, res) {
     if (name === "add-class") {
       const className = req.body.data.options[0].value;
       const ranked = req.body.data.options[1].value;
-      const rank = "";
+      var rank = "";
       if (ranked) rank = "Ranked";
       else rank = "Unranked";
 
@@ -333,31 +333,33 @@ app.post("/interactions", async function (req, res) {
     if (name === "calculate-gpa") {
       const d = readData();
       const userId = String(req.body.member.user.id);
-      const rank = req.body.data.options[0].value;
-      const filteredClassesMap = d.classesMap;
-      if (rank === "Ranked")
-        filteredClassesMap = filteredClassesMap.filter(
-          (rank) => classesMap.rank === "Ranked"
-        );
+      // const rank = req.body.data.options[0].value;
+      var filteredClassesMap = [];
+      // if (rank === "Ranked")
+      filteredClassesMap = d.classesMap.filter(
+        (entry) => entry.rank === "Ranked"
+      );
+
       filteredClassesMap = filteredClassesMap.filter((entry) =>
         entry.users.includes(userId)
       );
 
       const modal = new ModalBuilder()
         .setCustomId("calculateModal")
-        .setTitle(`Calculate Your ${rank} GPA`);
+        .setTitle(`Calculate Your Ranked GPA`);
 
       filteredClassesMap.forEach((entry, index) => {
+        if (index >= 5) return;
+
         const textInput = new TextInputBuilder()
           .setCustomId(`text_input_${index}`)
           .setLabel(`Enter grade for ${entry.class}`)
           .setStyle(TextInputStyle.Short)
           .setPlaceholder(`Grade (0-100)`)
-          .setRequired(true);
+          .setRequired(true)
+          .setMaxLength(3);
 
-        const actionRow = new ActionRowBuilder().addComponents(textInput);
-
-        modal.addComponents(actionRow);
+        modal.addComponents(new ActionRowBuilder().addComponents(textInput));
       });
 
       // var allClassAvgList = [
@@ -402,7 +404,7 @@ app.post("/interactions", async function (req, res) {
       // }
       // var GPA = sum / allClassAvgList.length;
 
-      return res.send({
+      await res.send({
         type: InteractionResponseType.MODAL,
         data: modal.toJSON(),
       });
@@ -412,15 +414,9 @@ app.post("/interactions", async function (req, res) {
   if (type === InteractionType.MESSAGE_COMPONENT) {
     // custom_id set in payload when sending message component
     const componentId = data.custom_id;
-    const d = readData();
 
     if (componentId === "choose_btn") {
-      // return res.send({
-      //   type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      //   data: {
-      //     content: "hi",
-      //   }
-      // });
+      const d = readData();
 
       // Delete message with token in request body
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
@@ -501,6 +497,21 @@ app.post("/interactions", async function (req, res) {
       }
     }
   }
+
+  if (type === InteractionResponseType.MODAL_SUBMIT) {
+    const componentId = data.custom_id;
+
+    if (componentId === "calculateModal") {
+      const inputValues = [];
+
+      for (let i = 0; i < filteredClassesMap.length && i < 5; i++) {
+        const input = data.fields.getTextInputValue(`text_input_${i}`);
+        inputValues.push(input);
+      }
+      
+      
+    }
+  }
 });
 
 app.listen(PORT, () => {
@@ -520,7 +531,7 @@ client.once("ready", () => {
 
       //delete today's events from event list
       const td = new Date();
-      td.setDate(td.getDate() - 1);
+      td.setDate(td.getDate());
       const tdStr = `${String(td.getMonth() + 1).padStart(2, "0")}-${String(
         td.getDate()
       ).padStart(2, "0")}-${String(td.getFullYear()).slice(-2)}`;
@@ -531,7 +542,7 @@ client.once("ready", () => {
 
       //notify users of tmr's events
       const tmr = new Date();
-      tmr.setDate(tmr.getDate());
+      tmr.setDate(tmr.getDate() + 1);
 
       const tmrStr = `${String(tmr.getMonth() + 1).padStart(2, "0")}-${String(
         tmr.getDate()

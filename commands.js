@@ -104,26 +104,26 @@ const REMOVEEVENT_COMMAND = {
 // Command containing options
 const CALCULATEGPA_COMMAND = {
   name: "calculate-gpa",
-  description: "Calculate your GPA.",
+  description: "Calculate your ranked GPA.",
   type: 1,
-  options: [
-    {
-      type: 3,
-      name: "type",
-      description:
-        "Choose whether you want to calculate your ranked GPA or cumulative GPA",
-      required: true,
-      choices: [
-        {
-          name: "Ranked GPA",
-          value: "Ranked",
-        },
-        {
-          name: "Cumulative GPA",
-          value: "Cumulative",
-        },
-      ],
-    },
+  // options: [
+  //   {
+  //     type: 3,
+  //     name: "type",
+  //     description:
+  //       "Choose whether you want to calculate your ranked GPA or cumulative GPA",
+  //     required: true,
+  //     choices: [
+  //       {
+  //         name: "Ranked GPA",
+  //         value: "Ranked",
+  //       },
+  //       {
+  //         name: "Cumulative GPA",
+  //         value: "Cumulative",
+  //       },
+  //     ],
+  //   },
     // {
     //   type: 4,
     //   name: "grade1",
@@ -228,7 +228,7 @@ const CALCULATEGPA_COMMAND = {
     //       },
     //     ],
     //   },
-  ],
+  //],
 };
 
 const ALL_COMMANDS = [
