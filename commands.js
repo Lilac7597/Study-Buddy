@@ -14,6 +14,12 @@ const HI_COMMAND = {
   type: 1,
 };
 
+const HELP_COMMAND = {
+  name: "help",
+  description: "Guide on how to use this bot.",
+  type: 1,
+}
+
 const CLASSES_COMMAND = {
   name: "classes",
   description: "View the current list of classes.",
@@ -234,6 +240,7 @@ const CALCULATEGPA_COMMAND = {
 const ALL_COMMANDS = [
   TEST_COMMAND,
   HI_COMMAND,
+  HELP_COMMAND,
   CLASSES_COMMAND,
   ADDCLASS_COMMAND,
   REMOVECLASS_COMMAND,
