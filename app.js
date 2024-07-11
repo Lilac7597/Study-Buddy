@@ -38,49 +38,28 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
 
 //Gerald's responses
-var responsesList = [
-  // "STUDY HARDER!!!",
-  // "ew its you",
-  // "smh",
-  // "what are you doing here",
-  // "ur annoying",
-  // "bye",
-  "hey",
-  "hi",
-  "hello",
-  "howdy",
-  "what's up,",
-  "bonjour",
-];
+var responsesList = ["hey", "hi", "hello", "howdy", "what's up,", "bonjour"];
+
 //List of current available classes
 var classesList;
 //Map of users and the classes they are assigned to
 var classesMap;
 
-/**
- * Interactions endpoint URL where Discord will send HTTP requests
- */
+// Interactions endpoint URL where Discord will send HTTP requests
 app.post("/interactions", async function (req, res) {
   // Interaction type and data
   const { type, id, data } = req.body;
 
-  /**
-   * Handle verification requests
-   */
+  // Handle verification requests
   if (type === InteractionType.PING) {
     return res.send({ type: InteractionResponseType.PONG });
   }
 
-  /**
-   * Handle slash command requests
-   * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
-   */
+  // Handle slash command requests
   if (type === InteractionType.APPLICATION_COMMAND) {
     const { name } = data;
 
-    // "test" command
     if (name === "test") {
-      // Send a message into the channel where command was triggered from
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
@@ -90,8 +69,6 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "hi") {
-      // Send a message into the channel where command was triggered from
-
       var random = Math.floor(Math.random() * responsesList.length);
       const userId = req.body.member.user.id;
 
@@ -104,7 +81,7 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "classes") {
-      const d = readData(); // Read data from JSON file
+      const d = readData();
 
       const embed = {
         title: "All Classes",
@@ -165,11 +142,11 @@ app.post("/interactions", async function (req, res) {
       if (ranked) rank = "Ranked";
       else rank = "Unranked";
 
-      const d = readData(); // Read data from JSON file
+      const d = readData();
 
-      d.classesList.push(className); // Add the class to the list
+      d.classesList.push(className);
       d.classesMap.push({ class: className, rank: rank, users: [] });
-      writeData(d); // Write updated data back to the JSON file
+      writeData(d);
 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -182,12 +159,12 @@ app.post("/interactions", async function (req, res) {
     if (name === "remove-class") {
       const index = req.body.data.options[0].value - 1;
 
-      const d = readData(); // Read data from JSON file
+      const d = readData();
 
       if (index >= 0 && index < d.classesList.length) {
-        d.classesList.splice(index, 1); // Remove the class at the specified index
+        d.classesList.splice(index, 1);
         d.classesMap.splice(index, 1);
-        writeData(d); // Write updated data back to the JSON file
+        writeData(d);
 
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -308,11 +285,11 @@ app.post("/interactions", async function (req, res) {
     if (name === "remove-event") {
       const index = req.body.data.options[0].value - 1;
 
-      const d = readData(); // Read data from JSON file
+      const d = readData();
 
       if (index >= 0 && index < d.eventsMap.length) {
-        d.eventsMap.splice(index, 1); // Remove the class at the specified index
-        writeData(d); // Write updated data back to the JSON file
+        d.eventsMap.splice(index, 1);
+        writeData(d);
 
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -376,7 +353,6 @@ app.post("/interactions", async function (req, res) {
   }
 
   if (type === InteractionType.MESSAGE_COMPONENT) {
-    // custom_id set in payload when sending message component
     const componentId = data.custom_id;
 
     if (componentId === "choose_btn") {
@@ -511,69 +487,60 @@ app.post("/interactions", async function (req, res) {
 
     if (componentId === "calculateModal") {
       var inputValues = [];
-
-    for (var i = 0; i < filteredClassesMap.length && i < 5; i++) {
-          const input = data.fields[`text_input_${i}`];
-        if (input) {
-          inputValues.push(parseFloat(input));
-        }
+      for (let action of data.components) {
+        let inputComponent = action.components[0];
+        inputValues.push(inputComponent.value);
       }
 
-//       var sum = 0;
-//       for (var i = 0; i < inputValues.length; i++) {
-//         var decrement = 4;
-//         var count = 0;
-//         var classGPA;
+      const d = readData();
+      const userId = String(req.body.member.user.id);
+      var filteredClassesMap = [];
+      filteredClassesMap = d.classesMap.filter(
+        (entry) => entry.rank === "Ranked"
+      );
 
-//         if (filteredClassesMap[i].class.startsWith("AP")) {
-//           classGPA = 6;
-//         } else if (filteredClassesMap[i].class.startsWith("MAP")) {
-//           classGPA = 5.5;
-//         } else {
-//           classGPA = 5;
-//         }
+      filteredClassesMap = filteredClassesMap.filter((entry) =>
+        entry.users.includes(userId)
+      );
 
-//         for (var j = 97; j > inputValues[i]; j -= decrement) {
-//           classGPA -= 0.2;
-//           if (count == 0) {
-//             decrement = 4;
-//           } else {
-//             decrement = 3;
-//           }
-//           count = (count + 1) % 3;
-//         }
-//         if (inputValues[i] < 70) {
-//           classGPA = 0;
-//         } else if (inputValues[i] == 70) {
-//           classGPA -= 0.4;
-//         }
-//         sum += classGPA;
-//       }
-//       var GPA = sum / inputValues.length;
+      var sum = 0;
+      for (var i = 0; i < inputValues.length; i++) {
+        var decrement = 4;
+        var count = 0;
+        var classGPA;
 
-      return res.send({
+        if (filteredClassesMap[i].class.startsWith("AP")) {
+          classGPA = 6;
+        } else if (filteredClassesMap[i].class.startsWith("MAP")) {
+          classGPA = 5.5;
+        } else {
+          classGPA = 5;
+        }
+
+        for (var j = 97; j > inputValues[i]; j -= decrement) {
+          classGPA -= 0.2;
+          if (count == 0) {
+            decrement = 4;
+          } else {
+            decrement = 3;
+          }
+          count = (count + 1) % 3;
+        }
+        if (inputValues[i] < 70) {
+          classGPA = 0;
+        } else if (inputValues[i] == 70) {
+          classGPA -= 0.4;
+        }
+        sum += classGPA;
+      }
+      var GPA = sum / inputValues.length;
+
+      await res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          // content: `Your ranked GPA is: ${GPA.toFixed(4)}`,
-          content: "hi",
+          content: `Your ranked GPA is: ${GPA.toFixed(3)}`,
         },
       });
-
-      //  try {
-      //   const url = `webhooks/${process.env.APP_ID}/${req.body.token}`;
-      //   await DiscordRequest(url, {
-      //     method: 'POST',
-      //     body: JSON.stringify({
-      //       content: `Your GPA is: `,
-      //     }),
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     }
-      //   });
-      //   console.log('Follow-up message sent successfully!');
-      // } catch (error) {
-      //   console.error('Error sending follow-up message:', error);
-      // }
     }
   }
 });
@@ -586,7 +553,7 @@ client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
   cron.schedule(
-    "0 20 * * *",
+    "28 0 * * *",
     async () => {
       const d = readData();
 
@@ -716,5 +683,6 @@ async function getClassesOptions() {
 }
 
 //TODO:
-//add modals for calculate
-//add todo list :) (how ironic)
+//user guide
+//add colors for classes/events
+//maybe todo list
