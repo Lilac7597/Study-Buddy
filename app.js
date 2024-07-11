@@ -16,6 +16,7 @@ import {
 import cron from "node-cron";
 import {
   Client,
+  Events,
   GatewayIntentBits,
   ModalBuilder,
   TextInputBuilder,
@@ -347,10 +348,30 @@ app.post("/interactions", async function (req, res) {
           {
             name: "Note:",
             value:
-              "The form can only support a maximum of 5 inputs, so if you are taking more than 5 ranked classes, then only the first 5 will be recognized. In that case, your result may not be accurate.\n\nAlso, the form will ask you to input grades for the ranked classes you chose in `/classes`, so make sure the classes you chose are the current classes you are taking.",
+              "The form will ask you to input grades for the ranked classes you chose in `/classes`, so make sure the classes you chose are the current classes you are taking. \n\n Also, the form can only support a maximum of 5 inputs, so if you are taking more than 5 ranked classes, then only the first 5 will be recognized. In that case, your result may not be accurate.",
           },
         ],
       };
+
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          embeds: [embed],
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  custom_id: "open_form_btn",
+                  style: 1,
+                  label: "Open Form",
+                },
+              ],
+            },
+          ],
+        },
+      });
     }
   }
 
@@ -440,7 +461,7 @@ app.post("/interactions", async function (req, res) {
       }
     }
 
-    if (componentId === "open-form") {
+    if (componentId === "open_form_btn") {
       const d = readData();
       const userId = String(req.body.member.user.id);
       // const rank = req.body.data.options[0].value;
@@ -473,63 +494,86 @@ app.post("/interactions", async function (req, res) {
         modal.addComponents(new ActionRowBuilder().addComponents(textInput));
       });
 
+      // Delete message with token in request body
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
       await res.send({
         type: InteractionResponseType.MODAL,
         data: modal.toJSON(),
       });
+
+      // Delete previous message
+      await DiscordRequest(endpoint, { method: "DELETE" });
     }
   }
 
-  if (type === InteractionResponseType.MODAL_SUBMIT) {
+  if (type === InteractionType.MODAL_SUBMIT) {
     const componentId = data.custom_id;
 
     if (componentId === "calculateModal") {
       var inputValues = [];
 
-      for (var i = 0; i < filteredClassesMap.length && i < 5; i++) {
-        const input = data.fields.getTextInputValue(`text_input_${i}`);
-        inputValues.push(parseFloat(input));
+    for (var i = 0; i < filteredClassesMap.length && i < 5; i++) {
+          const input = data.fields[`text_input_${i}`];
+        if (input) {
+          inputValues.push(parseFloat(input));
+        }
       }
 
-      var sum = 0;
-      for (var i = 0; i < inputValues.length; i++) {
-        var decrement = 4;
-        var count = 0;
-        var classGPA;
+//       var sum = 0;
+//       for (var i = 0; i < inputValues.length; i++) {
+//         var decrement = 4;
+//         var count = 0;
+//         var classGPA;
 
-        if (filteredClassesMap[i].class.startsWith("AP")) {
-          classGPA = 6;
-        } else if (filteredClassesMap[i].class.startsWith("MAP")) {
-          classGPA = 5.5;
-        } else {
-          classGPA = 5;
-        }
+//         if (filteredClassesMap[i].class.startsWith("AP")) {
+//           classGPA = 6;
+//         } else if (filteredClassesMap[i].class.startsWith("MAP")) {
+//           classGPA = 5.5;
+//         } else {
+//           classGPA = 5;
+//         }
 
-        for (var j = 97; j > inputValues[i]; j -= decrement) {
-          classGPA -= 0.2;
-          if (count == 0) {
-            decrement = 4;
-          } else {
-            decrement = 3;
-          }
-          count = (count + 1) % 3;
-        }
-        if (inputValues[i] < 70) {
-          classGPA = 0;
-        } else if (inputValues[i] == 70) {
-          classGPA -= 0.4;
-        }
-        sum += classGPA;
-      }
-      var GPA = sum / inputValues.length;
+//         for (var j = 97; j > inputValues[i]; j -= decrement) {
+//           classGPA -= 0.2;
+//           if (count == 0) {
+//             decrement = 4;
+//           } else {
+//             decrement = 3;
+//           }
+//           count = (count + 1) % 3;
+//         }
+//         if (inputValues[i] < 70) {
+//           classGPA = 0;
+//         } else if (inputValues[i] == 70) {
+//           classGPA -= 0.4;
+//         }
+//         sum += classGPA;
+//       }
+//       var GPA = sum / inputValues.length;
 
       return res.send({
-        type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE,
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           // content: `Your ranked GPA is: ${GPA.toFixed(4)}`,
           content: "hi",
         },
       });
+
+      //  try {
+      //   const url = `webhooks/${process.env.APP_ID}/${req.body.token}`;
+      //   await DiscordRequest(url, {
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       content: `Your GPA is: `,
+      //     }),
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     }
+      //   });
+      //   console.log('Follow-up message sent successfully!');
+      // } catch (error) {
+      //   console.error('Error sending follow-up message:', error);
+      // }
     }
   }
 });
