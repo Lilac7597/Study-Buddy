@@ -10,7 +10,7 @@ const TEST_COMMAND = {
 
 const HI_COMMAND = {
   name: "hi",
-  description: "Say hi to Gerald!.",
+  description: "Say hi to Gerald!",
   type: 1,
 };
 

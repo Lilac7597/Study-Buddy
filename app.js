@@ -331,83 +331,26 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "calculate-gpa") {
-      const d = readData();
-      const userId = String(req.body.member.user.id);
-      // const rank = req.body.data.options[0].value;
-      var filteredClassesMap = [];
-      // if (rank === "Ranked")
-      filteredClassesMap = d.classesMap.filter(
-        (entry) => entry.rank === "Ranked"
-      );
-
-      filteredClassesMap = filteredClassesMap.filter((entry) =>
-        entry.users.includes(userId)
-      );
-
-      const modal = new ModalBuilder()
-        .setCustomId("calculateModal")
-        .setTitle(`Calculate Your Ranked GPA`);
-
-      filteredClassesMap.forEach((entry, index) => {
-        if (index >= 5) return;
-
-        const textInput = new TextInputBuilder()
-          .setCustomId(`text_input_${index}`)
-          .setLabel(`Enter grade for ${entry.class}`)
-          .setStyle(TextInputStyle.Short)
-          .setPlaceholder(`Grade (0-100)`)
-          .setRequired(true)
-          .setMaxLength(3);
-
-        modal.addComponents(new ActionRowBuilder().addComponents(textInput));
-      });
-
-      // var allClassAvgList = [
-      //   req.body.data.options[0].value,
-      //   req.body.data.options[2].value,
-      //   req.body.data.options[4].value,
-      //   req.body.data.options[6].value,
-      // ];
-      // var allClassWeightsList = [
-      //   req.body.data.options[1].value,
-      //   req.body.data.options[3].value,
-      //   req.body.data.options[5].value,
-      //   req.body.data.options[7].value,
-      // ];
-      // var sum = 0;
-      // for (var i = 0; i < allClassAvgList.length; i++) {
-      //   var decrement = 4;
-      //   var count = 0;
-      //   var classGPA;
-      //   if (allClassWeightsList[i] == "REG") {
-      //     classGPA = 5;
-      //   } else if (allClassWeightsList[i] == "MAP") {
-      //     classGPA = 5.5;
-      //   } else if (allClassWeightsList[i] == "AP") {
-      //     classGPA = 6;
-      //   }
-      //   for (var j = 97; j > allClassAvgList[i]; j -= decrement) {
-      //     classGPA -= 0.2;
-      //     if (count == 0) {
-      //       decrement = 4;
-      //     } else {
-      //       decrement = 3;
-      //     }
-      //     count = (count + 1) % 3;
-      //   }
-      //   if (allClassAvgList[i] < 70) {
-      //     classGPA = 0;
-      //   } else if (allClassAvgList[i] == 70) {
-      //     classGPA -= 0.4;
-      //   }
-      //   sum += classGPA;
-      // }
-      // var GPA = sum / allClassAvgList.length;
-
-      await res.send({
-        type: InteractionResponseType.MODAL,
-        data: modal.toJSON(),
-      });
+      const embed = {
+        title: "Calculate Your Ranked GPA",
+        description: "Click on the `Open Form` button to get started!",
+        color: 7793062,
+        footer: {
+          icon_url:
+            "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+          text: "Press the button below :D",
+        },
+        thumbnail: {
+          url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+        },
+        fields: [
+          {
+            name: "Note:",
+            value:
+              "The form can only support a maximum of 5 inputs, so if you are taking more than 5 ranked classes, then only the first 5 will be recognized. In that case, your result may not be accurate.\n\nAlso, the form will ask you to input grades for the ranked classes you chose in `/classes`, so make sure the classes you chose are the current classes you are taking.",
+          },
+        ],
+      };
     }
   }
 
@@ -496,20 +439,97 @@ app.post("/interactions", async function (req, res) {
         console.error("Error sending message:", err);
       }
     }
+
+    if (componentId === "open-form") {
+      const d = readData();
+      const userId = String(req.body.member.user.id);
+      // const rank = req.body.data.options[0].value;
+      var filteredClassesMap = [];
+      // if (rank === "Ranked")
+      filteredClassesMap = d.classesMap.filter(
+        (entry) => entry.rank === "Ranked"
+      );
+
+      filteredClassesMap = filteredClassesMap.filter((entry) =>
+        entry.users.includes(userId)
+      );
+
+      const modal = new ModalBuilder()
+        .setCustomId("calculateModal")
+        .setTitle(`Calculate Your Ranked GPA`);
+
+      filteredClassesMap.forEach((entry, index) => {
+        if (index >= 5) return;
+
+        const textInput = new TextInputBuilder()
+          .setCustomId(`text_input_${index}`)
+          .setLabel(`Enter grade for ${entry.class}`)
+          .setStyle(TextInputStyle.Short)
+          .setPlaceholder(`Enter grade (0-100)`)
+          .setRequired(true)
+          .setMinLength(1)
+          .setMaxLength(3);
+
+        modal.addComponents(new ActionRowBuilder().addComponents(textInput));
+      });
+
+      await res.send({
+        type: InteractionResponseType.MODAL,
+        data: modal.toJSON(),
+      });
+    }
   }
 
   if (type === InteractionResponseType.MODAL_SUBMIT) {
     const componentId = data.custom_id;
 
     if (componentId === "calculateModal") {
-      const inputValues = [];
+      var inputValues = [];
 
-      for (let i = 0; i < filteredClassesMap.length && i < 5; i++) {
+      for (var i = 0; i < filteredClassesMap.length && i < 5; i++) {
         const input = data.fields.getTextInputValue(`text_input_${i}`);
-        inputValues.push(input);
+        inputValues.push(parseFloat(input));
       }
-      
-      
+
+      var sum = 0;
+      for (var i = 0; i < inputValues.length; i++) {
+        var decrement = 4;
+        var count = 0;
+        var classGPA;
+
+        if (filteredClassesMap[i].class.startsWith("AP")) {
+          classGPA = 6;
+        } else if (filteredClassesMap[i].class.startsWith("MAP")) {
+          classGPA = 5.5;
+        } else {
+          classGPA = 5;
+        }
+
+        for (var j = 97; j > inputValues[i]; j -= decrement) {
+          classGPA -= 0.2;
+          if (count == 0) {
+            decrement = 4;
+          } else {
+            decrement = 3;
+          }
+          count = (count + 1) % 3;
+        }
+        if (inputValues[i] < 70) {
+          classGPA = 0;
+        } else if (inputValues[i] == 70) {
+          classGPA -= 0.4;
+        }
+        sum += classGPA;
+      }
+      var GPA = sum / inputValues.length;
+
+      return res.send({
+        type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE,
+        data: {
+          // content: `Your ranked GPA is: ${GPA.toFixed(4)}`,
+          content: "hi",
+        },
+      });
     }
   }
 });
@@ -576,6 +596,67 @@ client.once("ready", () => {
   );
 });
 client.login(process.env.DISCORD_TOKEN);
+
+// client.on("interactionCreate", async (interaction) => {
+//   if (interaction.type === InteractionType.ModalSubmit) {
+//     if (interaction.customId === "calculateModal") {
+//       const d = readData();
+//       const userId = String(interaction.user.id);
+//       var filteredClassesMap = [];
+//       filteredClassesMap = d.classesMap.filter(
+//         (entry) => entry.rank === "Ranked"
+//       );
+
+//       filteredClassesMap = filteredClassesMap.filter((entry) =>
+//         entry.users.includes(userId)
+//       );
+
+//       var inputValues = [];
+
+//       for (var i = 0; i < filteredClassesMap.length && i < 5; i++) {
+//         const input = interaction.fields.getTextInputValue(`text_input_${i}`);
+//         inputValues.push(parseFloat(input));
+//       }
+
+//       var sum = 0;
+//       for (var i = 0; i < inputValues.length; i++) {
+//         var decrement = 4;
+//         var count = 0;
+//         var classGPA;
+
+//         if (filteredClassesMap[i].class.startsWith("AP")) {
+//           classGPA = 6;
+//         } else if (filteredClassesMap[i].class.startsWith("MAP")) {
+//           classGPA = 5.5;
+//         } else {
+//           classGPA = 5;
+//         }
+
+//         for (var j = 97; j > inputValues[i]; j -= decrement) {
+//           classGPA -= 0.2;
+//           if (count == 0) {
+//             decrement = 4;
+//           } else {
+//             decrement = 3;
+//           }
+//           count = (count + 1) % 3;
+//         }
+//         if (inputValues[i] < 70) {
+//           classGPA = 0;
+//         } else if (inputValues[i] == 70) {
+//           classGPA -= 0.4;
+//         }
+//         sum += classGPA;
+//       }
+//       var GPA = sum / inputValues.length;
+
+//       await interaction.reply({
+//         content: "hi",
+//       });
+//     }
+//   }
+// });
+// client.login(process.env.DISCORD_TOKEN);
 
 async function getClassesOptions() {
   const d = readData();
