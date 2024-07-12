@@ -15,32 +15,47 @@
         {
           "class": "MAP English II",
           "rank": "Ranked",
-          "users": ["829379208161001482", "690231745034977290"]
+          "users": [
+            "829379208161001482",
+            "690231745034977290"
+          ]
         },
         {
           "class": "MAP Algebra II",
           "rank": "Ranked",
-          "users": ["829379208161001482"]
+          "users": [
+            "829379208161001482"
+          ]
         },
         {
           "class": "AP World Hist",
           "rank": "Ranked",
-          "users": ["829379208161001482", "690231745034977290"]
+          "users": [
+            "829379208161001482",
+            "690231745034977290"
+          ]
         },
         {
           "class": "MAP Pre-Calc",
           "rank": "Ranked",
-          "users": ["829379208161001482", "690231745034977290"]
+          "users": [
+            "829379208161001482",
+            "690231745034977290"
+          ]
         },
         {
           "class": "MAP Chemistry",
           "rank": "Ranked",
-          "users": ["690231745034977290"]
+          "users": [
+            "690231745034977290"
+          ]
         },
         {
           "class": "AP Statistics",
           "rank": "Ranked",
-          "users": ["690231745034977290"]
+          "users": [
+            "690231745034977290"
+          ]
         },
         {
           "class": "CS II",
@@ -64,7 +79,58 @@
           "name": "we totally have a test frfr",
           "date": "07-10-24"
         }
-      ]
+      ],
+      "channel_id": "",
+      "timezone": "",
+      "notifs": true
+    },
+    "853067384481775656": {
+      "classesList": [
+        "MAP Pre-Calc",
+        "AP World Hist",
+        "AP U.S. Hist",
+        "MAP Algebra II",
+        "MAP English II"
+      ],
+      "classesMap": [
+        {
+          "class": "MAP Pre-Calc",
+          "rank": "Ranked",
+          "users": [
+            "690231745034977290"
+          ]
+        },
+        {
+          "class": "AP World Hist",
+          "rank": "Ranked",
+          "users": [
+            "690231745034977290"
+          ]
+        },
+        {
+          "class": "AP U.S. Hist",
+          "rank": "Ranked",
+          "users": []
+        },
+        {
+          "class": "MAP Algebra II",
+          "rank": "Ranked",
+          "users": [
+            "690231745034977290"
+          ]
+        },
+        {
+          "class": "MAP English II",
+          "rank": "Ranked",
+          "users": [
+            "690231745034977290"
+          ]
+        }
+      ],
+      "eventsMap": [],
+      "channel_id": "",
+      "timezone": "",
+      "notifs": true
     }
   }
 }

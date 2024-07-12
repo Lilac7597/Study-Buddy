@@ -81,7 +81,16 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "classes") {
-      const d = readData().guilds[guild_id] || { classesList:[], classesMap: [], eventsMap: [] };
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        channel_id: "",
+        timezone: "",
+        notifs: true,
+      };
+      dataIn.guilds[guild_id] = d;
 
       const embed = {
         title: "All Classes",
@@ -142,11 +151,20 @@ app.post("/interactions", async function (req, res) {
       if (ranked) rank = "Ranked";
       else rank = "Unranked";
 
-      const d = readData();
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        channel_id: "",
+        timezone: "",
+        notifs: true,
+      };
+      dataIn.guilds[guild_id] = d;
 
       d.classesList.push(className);
       d.classesMap.push({ class: className, rank: rank, users: [] });
-      writeData(d);
+      writeData(dataIn);
 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -159,12 +177,21 @@ app.post("/interactions", async function (req, res) {
     if (name === "remove-class") {
       const index = req.body.data.options[0].value - 1;
 
-      const d = readData();
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        channel_id: "",
+        timezone: "",
+        notifs: true,
+      };
+      dataIn.guilds[guild_id] = d;
 
       if (index >= 0 && index < d.classesList.length) {
         d.classesList.splice(index, 1);
         d.classesMap.splice(index, 1);
-        writeData(d);
+        writeData(dataIn);
 
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -184,7 +211,16 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "events") {
-      const d = readData();
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        channel_id: "",
+        timezone: "",
+        notifs: true,
+      };
+      dataIn.guilds[guild_id] = d;
 
       const embed = {
         title: "Upcoming Events",
@@ -230,7 +266,17 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name == "add-event") {
-      const d = readData();
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        channel_id: "",
+        timezone: "",
+        notifs: true,
+      };
+      dataIn.guilds[guild_id] = d;
+
       var className = d.classesList[req.body.data.options[0].value - 1];
       var eventName = req.body.data.options[1].value;
       var eventDate = req.body.data.options[2].value;
@@ -271,7 +317,7 @@ app.post("/interactions", async function (req, res) {
           return dateA - dateB;
         });
 
-        writeData(d);
+        writeData(dataIn);
       }
 
       return res.send({
@@ -285,11 +331,20 @@ app.post("/interactions", async function (req, res) {
     if (name === "remove-event") {
       const index = req.body.data.options[0].value - 1;
 
-      const d = readData();
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        channel_id: "",
+        timezone: "",
+        notifs: true,
+      };
+      dataIn.guilds[guild_id] = d;
 
       if (index >= 0 && index < d.eventsMap.length) {
         d.eventsMap.splice(index, 1);
-        writeData(d);
+        writeData(dataIn);
 
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -360,7 +415,16 @@ app.post("/interactions", async function (req, res) {
     const componentId = data.custom_id;
     //classes command
     if (componentId === "choose_btn") {
-      const d = readData();
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        channel_id: "",
+        timezone: "",
+        notifs: true,
+      };
+      dataIn.guilds[guild_id] = d;
 
       // Delete message with token in request body
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
@@ -377,7 +441,7 @@ app.post("/interactions", async function (req, res) {
                     type: 3,
                     custom_id: "class_select",
                     placeholder: "Select classes (max 7)",
-                    options: await getClassesOptions(),
+                    options: await getClassesOptions(guild_id),
                     //options: [{ label: "hi", value: "hi" }],
                     min_values: 0,
                     max_values:
@@ -399,7 +463,17 @@ app.post("/interactions", async function (req, res) {
     if (componentId === "class_select") {
       //get user's id
       const userId = String(req.body.member.user.id);
-      const d = readData();
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        channel_id: "",
+        timezone: "",
+        notifs: true,
+      };
+      dataIn.guilds[guild_id] = d;
+
       var selected = data.values;
 
       for (var i = 0; i < d.classesMap.length; i++) {
@@ -418,7 +492,7 @@ app.post("/interactions", async function (req, res) {
         }
       });
 
-      writeData(d);
+      writeData(dataIn);
 
       // Delete message with token in request body
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
@@ -444,7 +518,17 @@ app.post("/interactions", async function (req, res) {
 
     //calculate-gpa command
     if (componentId === "open_form_btn") {
-      const d = readData();
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        channel_id: "",
+        timezone: "",
+        notifs: true,
+      };
+      dataIn.guilds[guild_id] = d;
+
       const userId = String(req.body.member.user.id);
       // const rank = req.body.data.options[0].value;
       var filteredClassesMap = [];
@@ -700,11 +784,11 @@ app.post("/interactions", async function (req, res) {
       });
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
-    
-    if(componentId === "exit_btn"){
+
+    if (componentId === "exit_btn") {
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
       await res.send({
-        type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE
+        type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE,
       });
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
@@ -726,7 +810,16 @@ app.post("/interactions", async function (req, res) {
         inputValues.push(inputComponent.value);
       }
 
-      const d = readData();
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        channel_id: "",
+        timezone: "",
+        notifs: true,
+      };
+      dataIn.guilds[guild_id] = d;
       const userId = String(req.body.member.user.id);
       var filteredClassesMap = [];
       filteredClassesMap = d.classesMap.filter(
@@ -862,48 +955,67 @@ client.once("ready", () => {
   cron.schedule(
     "0 20 * * *",
     async () => {
-      const d = readData();
+      for (const guild of client.guilds.cache.values()) {
+        const guild_id = guild.id;
+        const dataIn = readData();
+        const d = dataIn.guilds[guild_id] || {
+          classesList: [],
+          classesMap: [],
+          eventsMap: [],
+          channel_id: "",
+          timezone: "",
+          notifs: true,
+        };
+        dataIn.guilds[guild_id] = d;
 
-      const channelId = process.env.CHANNEL_ID; // Use environment variable for channel ID
-      const channel = await client.channels.fetch(channelId);
+        if (d.channel_id.length > 0) {
+          const channelId = d.channel_id;
+          const channel = await client.channels.fetch(channelId);
 
-      //delete today's events from event list
-      const td = new Date();
-      td.setDate(td.getDate());
-      const tdStr = `${String(td.getMonth() + 1).padStart(2, "0")}-${String(
-        td.getDate()
-      ).padStart(2, "0")}-${String(td.getFullYear()).slice(-2)}`;
+          //delete today's events from event list
+          const td = new Date();
+          td.setDate(td.getDate());
+          const tdStr = `${String(td.getMonth() + 1).padStart(2, "0")}-${String(
+            td.getDate()
+          ).padStart(2, "0")}-${String(td.getFullYear()).slice(-2)}`;
 
-      d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
+          d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
 
-      writeData(d);
+          writeData(dataIn);
 
-      //notify users of tmr's events
-      const tmr = new Date();
-      tmr.setDate(tmr.getDate() + 1);
+          //notify users of tmr's events
+          const tmr = new Date();
+          tmr.setDate(tmr.getDate() + 1);
 
-      const tmrStr = `${String(tmr.getMonth() + 1).padStart(2, "0")}-${String(
-        tmr.getDate()
-      ).padStart(2, "0")}-${String(tmr.getFullYear()).slice(-2)}`;
+          const tmrStr = `${String(tmr.getMonth() + 1).padStart(
+            2,
+            "0"
+          )}-${String(tmr.getDate()).padStart(2, "0")}-${String(
+            tmr.getFullYear()
+          ).slice(-2)}`;
 
-      const tmrEvents = d.eventsMap.filter((event) => event.date === tmrStr);
+          const tmrEvents = d.eventsMap.filter(
+            (event) => event.date === tmrStr
+          );
 
-      for (var i = 0; i < tmrEvents.length; i++) {
-        for (var j = 0; j < d.classesMap.length; j++) {
-          if (
-            tmrEvents[i].class === d.classesMap[j].class &&
-            d.classesMap[j].users.length > 0
-          ) {
-            const message = [];
+          for (var i = 0; i < tmrEvents.length; i++) {
+            for (var j = 0; j < d.classesMap.length; j++) {
+              if (
+                tmrEvents[i].class === d.classesMap[j].class &&
+                d.classesMap[j].users.length > 0
+              ) {
+                const message = [];
 
-            message.push(
-              d.classesMap[j].users.map((entry) => `<@${entry}>`).join(" ")
-            );
-            message.push(
-              `Don't forget! You have a(n) ${tmrEvents[i].class}: ${tmrEvents[i].name} tomorrow!\n`
-            );
+                message.push(
+                  d.classesMap[j].users.map((entry) => `<@${entry}>`).join(" ")
+                );
+                message.push(
+                  `Don't forget! You have a(n) ${tmrEvents[i].class}: ${tmrEvents[i].name} tomorrow!\n`
+                );
 
-            await channel.send(message.join("\n"));
+                await channel.send(message.join("\n"));
+              }
+            }
           }
         }
       }
@@ -915,8 +1027,18 @@ client.once("ready", () => {
 });
 client.login(process.env.DISCORD_TOKEN);
 
-async function getClassesOptions() {
-  const d = readData();
+async function getClassesOptions(guild_id) {
+  const dataIn = readData();
+  const d = dataIn.guilds[guild_id] || {
+    classesList: [],
+    classesMap: [],
+    eventsMap: [],
+    channel_id: "",
+    timezone: "",
+    notifs: true,
+  };
+  dataIn.guilds[guild_id] = d;
+
   var options = [];
   for (var i = 0; i < d.classesList.length; i++) {
     options.push({

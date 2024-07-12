@@ -18,6 +18,12 @@ const HELP_COMMAND = {
   name: "help",
   description: "Guide on how to use this bot.",
   type: 1,
+};
+
+const SETTINGS_COMMAND = {
+  name: "settings",
+  description: "Update your user/server information so that the bot works properly.",
+  type: 1,
 }
 
 const CLASSES_COMMAND = {
@@ -241,6 +247,7 @@ const ALL_COMMANDS = [
   TEST_COMMAND,
   HI_COMMAND,
   HELP_COMMAND,
+  SETTINGS_COMMAND,
   CLASSES_COMMAND,
   ADDCLASS_COMMAND,
   REMOVECLASS_COMMAND,
