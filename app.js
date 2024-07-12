@@ -86,9 +86,9 @@ app.post("/interactions", async function (req, res) {
         classesList: [],
         classesMap: [],
         eventsMap: [],
+        userNotifs: [],
         channel_id: "",
         timezone: "",
-        notifs: true,
       };
       dataIn.guilds[guild_id] = d;
 
@@ -156,9 +156,9 @@ app.post("/interactions", async function (req, res) {
         classesList: [],
         classesMap: [],
         eventsMap: [],
+        userNotifs: [],
         channel_id: "",
         timezone: "",
-        notifs: true,
       };
       dataIn.guilds[guild_id] = d;
 
@@ -182,9 +182,9 @@ app.post("/interactions", async function (req, res) {
         classesList: [],
         classesMap: [],
         eventsMap: [],
+        userNotifs: [],
         channel_id: "",
         timezone: "",
-        notifs: true,
       };
       dataIn.guilds[guild_id] = d;
 
@@ -216,9 +216,9 @@ app.post("/interactions", async function (req, res) {
         classesList: [],
         classesMap: [],
         eventsMap: [],
+        userNotifs: [],
         channel_id: "",
         timezone: "",
-        notifs: true,
       };
       dataIn.guilds[guild_id] = d;
 
@@ -271,9 +271,9 @@ app.post("/interactions", async function (req, res) {
         classesList: [],
         classesMap: [],
         eventsMap: [],
+        userNotifs: [],
         channel_id: "",
         timezone: "",
-        notifs: true,
       };
       dataIn.guilds[guild_id] = d;
 
@@ -336,9 +336,9 @@ app.post("/interactions", async function (req, res) {
         classesList: [],
         classesMap: [],
         eventsMap: [],
+        userNotifs: [],
         channel_id: "",
         timezone: "",
-        notifs: true,
       };
       dataIn.guilds[guild_id] = d;
 
@@ -409,6 +409,9 @@ app.post("/interactions", async function (req, res) {
     if (name === "help") {
       displayHelpMenu();
     }
+
+    if (name === "settings") {
+    }
   }
 
   if (type === InteractionType.MESSAGE_COMPONENT) {
@@ -420,9 +423,9 @@ app.post("/interactions", async function (req, res) {
         classesList: [],
         classesMap: [],
         eventsMap: [],
+        userNotifs: [],
         channel_id: "",
         timezone: "",
-        notifs: true,
       };
       dataIn.guilds[guild_id] = d;
 
@@ -468,9 +471,9 @@ app.post("/interactions", async function (req, res) {
         classesList: [],
         classesMap: [],
         eventsMap: [],
+        userNotifs: [],
         channel_id: "",
         timezone: "",
-        notifs: true,
       };
       dataIn.guilds[guild_id] = d;
 
@@ -492,6 +495,10 @@ app.post("/interactions", async function (req, res) {
         }
       });
 
+      if (!d.userNotifs.includes(userId)) {
+        d.userNotifs.push(userId);
+      }
+
       writeData(dataIn);
 
       // Delete message with token in request body
@@ -506,7 +513,8 @@ app.post("/interactions", async function (req, res) {
                 : "You will now be notified of any upcoming quizzes, tests, or events from these classes: " +
                   "```\n" +
                   selected.join("\n") +
-                  "\n```",
+                  "\n```" +
+                  "Go to `/settings` to disable notifications.",
           },
         });
         // Delete previous message
@@ -523,9 +531,9 @@ app.post("/interactions", async function (req, res) {
         classesList: [],
         classesMap: [],
         eventsMap: [],
+        userNotifs: [],
         channel_id: "",
         timezone: "",
-        notifs: true,
       };
       dataIn.guilds[guild_id] = d;
 
@@ -589,7 +597,7 @@ app.post("/interactions", async function (req, res) {
           {
             name: "Try out any of these:",
             value:
-              "- **/test:** Just makes sure Gerald works :)\n- **/hi:** He will greet you back!\n- **/classes:** View a list of all the classes you've added! The 'Choose...' button allows the user to choose what classes they are currently enrolled in, which will ensure that they get notified of upcoming tests, quizzes, anevents in those classes.\n- **/add-class:** Adds a class.\n- **/remove-class:** Removes a class.\n- **/events:** View a list of all upcoming tests, quizzes, and events.\n- **/add-event:** Adds an event.\n- **/remove-event:** Removes an event.\n- **/calculate-gpa:** Calculates your ranked GPA. Pressing a button will open a modal where you can enter your grades for each class that you are enrolled in.\n- **Additional:** The bot is programmed to remind users of the next day's events in the event list, at 8pm. It will ping the people who are enrolled in the class that the event corresponds to. Also, it will delete the current day's events, as they have probably already been completed by 8pm.",
+              "- **/test:** Just makes sure Gerald works :)\n- **/hi:** He will greet you back!\n- **/settings:** Allows users to update their notification channel and timezone, and enable/disable notifications.\n- **/classes:** View a list of all the classes that have been added. The 'Choose...' button allows the user to stay notified of upcoming events in the classes they choose.\n- **/add-class:** Adds a class.\n- **/remove-class:** Removes a class.\n- **/events:** View a list of all upcoming tests, quizzes, and events.\n- **/add-event:** Adds an event.\n- **/remove-event:** Removes an event.\n- **/calculate-gpa:** Calculates ranked GPA. In a modal, the user can enter their grades for each ranked class they are enrolled in.\n- **Additional:** The bot is programmed to remind users of the next day's events at 8pm. It will ping the people who are enrolled in the event's corresponding class. Also, it will delete the current day's events, as they have probably already been completed by 8pm.",
           },
         ],
       };
@@ -815,9 +823,9 @@ app.post("/interactions", async function (req, res) {
         classesList: [],
         classesMap: [],
         eventsMap: [],
+        userNotifs: [],
         channel_id: "",
         timezone: "",
-        notifs: true,
       };
       dataIn.guilds[guild_id] = d;
       const userId = String(req.body.member.user.id);
@@ -952,78 +960,88 @@ app.listen(PORT, () => {
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
-  cron.schedule(
-    "0 20 * * *",
-    async () => {
-      for (const guild of client.guilds.cache.values()) {
-        const guild_id = guild.id;
-        const dataIn = readData();
-        const d = dataIn.guilds[guild_id] || {
-          classesList: [],
-          classesMap: [],
-          eventsMap: [],
-          channel_id: "",
-          timezone: "",
-          notifs: true,
-        };
-        dataIn.guilds[guild_id] = d;
+  client.guilds.cache.forEach((guild) => {
+    const guild_id = guild.id;
+    const dataIn = readData();
+    const d = dataIn.guilds[guild_id] || {
+      classesList: [],
+      classesMap: [],
+      eventsMap: [],
+      userNotifs: [],
+      channel_id: "",
+      timezone: "",
+    };
+    dataIn.guilds[guild_id] = d;
 
-        if (d.channel_id.length > 0) {
-          const channelId = d.channel_id;
-          const channel = await client.channels.fetch(channelId);
+    if (d.channel_id.length > 0) {
+      cron.schedule(
+        "0 20 * * *",
+        async () => {
+          for (const guild of client.guilds.cache.values()) {
+            if (d.channel_id.length > 0) {
+              const channelId = d.channel_id;
+              const channel = await client.channels.fetch(channelId);
 
-          //delete today's events from event list
-          const td = new Date();
-          td.setDate(td.getDate());
-          const tdStr = `${String(td.getMonth() + 1).padStart(2, "0")}-${String(
-            td.getDate()
-          ).padStart(2, "0")}-${String(td.getFullYear()).slice(-2)}`;
+              //delete today's events from event list
+              const td = new Date();
+              td.setDate(td.getDate());
+              const tdStr = `${String(td.getMonth() + 1).padStart(
+                2,
+                "0"
+              )}-${String(td.getDate()).padStart(2, "0")}-${String(
+                td.getFullYear()
+              ).slice(-2)}`;
 
-          d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
+              d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
 
-          writeData(dataIn);
+              writeData(dataIn);
 
-          //notify users of tmr's events
-          const tmr = new Date();
-          tmr.setDate(tmr.getDate() + 1);
+              //notify users of tmr's events
+              const tmr = new Date();
+              tmr.setDate(tmr.getDate() + 1);
 
-          const tmrStr = `${String(tmr.getMonth() + 1).padStart(
-            2,
-            "0"
-          )}-${String(tmr.getDate()).padStart(2, "0")}-${String(
-            tmr.getFullYear()
-          ).slice(-2)}`;
+              const tmrStr = `${String(tmr.getMonth() + 1).padStart(
+                2,
+                "0"
+              )}-${String(tmr.getDate()).padStart(2, "0")}-${String(
+                tmr.getFullYear()
+              ).slice(-2)}`;
 
-          const tmrEvents = d.eventsMap.filter(
-            (event) => event.date === tmrStr
-          );
+              const tmrEvents = d.eventsMap.filter(
+                (event) => event.date === tmrStr
+              );
 
-          for (var i = 0; i < tmrEvents.length; i++) {
-            for (var j = 0; j < d.classesMap.length; j++) {
-              if (
-                tmrEvents[i].class === d.classesMap[j].class &&
-                d.classesMap[j].users.length > 0
-              ) {
-                const message = [];
+              for (var i = 0; i < tmrEvents.length; i++) {
+                for (var j = 0; j < d.classesMap.length; j++) {
+                  const notifiedUsers = d.classesMap[j].users.filter((entry) =>
+                    d.userNotifs.includes(entry)
+                  );
+                  if (
+                    tmrEvents[i].class === d.classesMap[j].class &&
+                    notifiedUsers.length > 0
+                  ) {
+                    const message = [];
 
-                message.push(
-                  d.classesMap[j].users.map((entry) => `<@${entry}>`).join(" ")
-                );
-                message.push(
-                  `Don't forget! You have a(n) ${tmrEvents[i].class}: ${tmrEvents[i].name} tomorrow!\n`
-                );
+                    message.push(
+                      notifiedUsers.map((entry) => `<@${entry}>`).join(" ")
+                    );
+                    message.push(
+                      `Don't forget! You have a(n) ${tmrEvents[i].class}: ${tmrEvents[i].name} tomorrow!\n`
+                    );
 
-                await channel.send(message.join("\n"));
+                    await channel.send(message.join("\n"));
+                  }
+                }
               }
             }
           }
+        },
+        {
+          timezone: d.timezone || "America/Chicago",
         }
-      }
-    },
-    {
-      timezone: "America/Chicago",
+      );
     }
-  );
+  });
 });
 client.login(process.env.DISCORD_TOKEN);
 
@@ -1033,9 +1051,9 @@ async function getClassesOptions(guild_id) {
     classesList: [],
     classesMap: [],
     eventsMap: [],
+    userNotifs: [],
     channel_id: "",
     timezone: "",
-    notifs: true,
   };
   dataIn.guilds[guild_id] = d;
 

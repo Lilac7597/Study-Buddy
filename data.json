@@ -80,16 +80,14 @@
           "date": "07-10-24"
         }
       ],
+      "userNotifs": [],
       "channel_id": "",
-      "timezone": "",
-      "notifs": true
+      "timezone": ""
     },
     "853067384481775656": {
       "classesList": [
         "MAP Pre-Calc",
-        "AP World Hist",
-        "AP U.S. Hist",
-        "MAP Algebra II",
+        "MAP Geometry",
         "MAP English II"
       ],
       "classesMap": [
@@ -101,19 +99,7 @@
           ]
         },
         {
-          "class": "AP World Hist",
-          "rank": "Ranked",
-          "users": [
-            "690231745034977290"
-          ]
-        },
-        {
-          "class": "AP U.S. Hist",
-          "rank": "Ranked",
-          "users": []
-        },
-        {
-          "class": "MAP Algebra II",
+          "class": "MAP Geometry",
           "rank": "Ranked",
           "users": [
             "690231745034977290"
@@ -128,9 +114,11 @@
         }
       ],
       "eventsMap": [],
+      "userNotifs": [
+        "690231745034977290"
+      ],
       "channel_id": "",
-      "timezone": "",
-      "notifs": true
+      "timezone": ""
     }
   }
 }
