@@ -591,10 +591,91 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (componentId === "events_btn") {
-      
+      const embed = {
+        title: "Events",
+        description: "Explanation of what the `/events` command does!",
+        color: 7793062,
+        footer: {
+          icon_url:
+            "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+          text: "Hope this helped!",
+        },
+        thumbnail: {
+          url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+        },
+        fields: [
+          {
+            name: "What is this command for?",
+            value:
+              "The `/events` command allows you to view a list of all the upcoming tests, quizzes, and events you added to it. The left column is the class name, the middle column is the name of the event, and the right column is the date. This information is used by Gerald to notify users of any events occurring soon in their classes.",
+          },
+          {
+            name: "`/add-event`",
+            value:
+              "Adds an event to the list of\nevents. Takes in three\narguments: class number,\nevent name, and date. The\nclass number can be found\nby doing the `/classes`\ncommand.",
+            inline: true,
+          },
+          {
+            name: "`/remove-event`",
+            value:
+              "Removes an event\nfrom the list of\nevents. Gerald will\nautomatically\nremove the current\nday's events at the\nend of the day.",
+            inline: true,
+          },
+        ],
+      };
+
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      await res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          embeds: [embed],
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  custom_id: "back_btn",
+                  style: 1,
+                  label: "Go Back",
+                },
+              ],
+            },
+          ],
+        },
+      });
+      await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
-    if (componentId == "gpa_btn") {
+    if (componentId === "gpa_btn") {
+      const embed = {
+  "title": "GPA Calculator",
+  "description": "Explanation of what the `/calculate-gpa` command does!",
+  "color": 7793062,
+  "footer": {
+    "icon_url": "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+    "text": "Hope this helped!"
+  },
+  "thumbnail": {
+    "url": "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250"
+  },
+  "fields": [
+    {
+      "name": "What is this command for?",
+      "value": "The `/calculate-gpa` command allows you calculate your ranked GPA. When you run the command, an embed containing additional information will be sent, with an `Open Form` button below it. This button will open a modal where you can enter your grades for each ranked class that you chose in `/classes`."
+    },
+    {
+      "name": "Getting Started",
+      "value": "1. Go to `/classes`\nand choose the\nranked classes\nyou are enrolled\nin.",
+      "inline": true
+    },
+    {
+      "name": "Disclaimer",
+      "value": "- The modal will\nask for ",
+      "inline": true
+    }
+  ]
+};
     }
 
     if (componentId === "back_btn") {
