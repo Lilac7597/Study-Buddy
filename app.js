@@ -48,7 +48,7 @@ var classesMap;
 // Interactions endpoint URL where Discord will send HTTP requests
 app.post("/interactions", async function (req, res) {
   // Interaction type and data
-  const { type, id, data } = req.body;
+  const { type, id, data, guild_id } = req.body;
 
   // Handle verification requests
   if (type === InteractionType.PING) {
@@ -81,7 +81,7 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "classes") {
-      const d = readData();
+      const d = readData().guilds[guild_id] || { classesList:[], classesMap: [], eventsMap: [] };
 
       const embed = {
         title: "All Classes",
@@ -649,33 +649,64 @@ app.post("/interactions", async function (req, res) {
 
     if (componentId === "gpa_btn") {
       const embed = {
-  "title": "GPA Calculator",
-  "description": "Explanation of what the `/calculate-gpa` command does!",
-  "color": 7793062,
-  "footer": {
-    "icon_url": "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
-    "text": "Hope this helped!"
-  },
-  "thumbnail": {
-    "url": "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250"
-  },
-  "fields": [
-    {
-      "name": "What is this command for?",
-      "value": "The `/calculate-gpa` command allows you calculate your ranked GPA. When you run the command, an embed containing additional information will be sent, with an `Open Form` button below it. This button will open a modal where you can enter your grades for each ranked class that you chose in `/classes`."
-    },
-    {
-      "name": "Getting Started",
-      "value": "1. Go to `/classes`\nand choose the\nranked classes\nyou are enrolled\nin.",
-      "inline": true
-    },
-    {
-      "name": "Disclaimer",
-      "value": "- The modal will\nask for ",
-      "inline": true
+        title: "GPA Calculator",
+        description: "Explanation of what the `/calculate-gpa` command does!",
+        color: 7793062,
+        footer: {
+          icon_url:
+            "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+          text: "Hope this helped!",
+        },
+        thumbnail: {
+          url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+        },
+        fields: [
+          {
+            name: "What is this command for?",
+            value:
+              "The `/calculate-gpa` command allows you calculate your ranked GPA. When you run the command, an embed containing additional information will be sent, with an `Open Form` button below it. This button will open a modal where you can enter your grades for each ranked class that you chose in `/classes`.",
+          },
+          {
+            name: "How to use:",
+            value:
+              "1. Type `/classes` and click the `Choose...` button to choose the ranked classes you are enrolled in.\n2. Type `/calculate-gpa` and click the `Open Form` button to fill out your grades for each ranked class.\n3. Click `Submit` and your ranked GPA will be displayed!",
+          },
+          {
+            name: "Disclaimers",
+            value:
+              "- Make sure you chose the correct classes in `/classes`, as you will be asked to input grades for those classes.\n- Discord modals have a limit of 5 text inputs per modal, so if you have more than 5 ranked classes, then only the first 5 will be displayed, which can result in inaccurate GPA calculations.",
+          },
+        ],
+      };
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      await res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          embeds: [embed],
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  custom_id: "back_btn",
+                  style: 1,
+                  label: "Go Back",
+                },
+              ],
+            },
+          ],
+        },
+      });
+      await DiscordRequest(endpoint, { method: "DELETE" });
     }
-  ]
-};
+    
+    if(componentId === "exit_btn"){
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      await res.send({
+        type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE
+      });
+      await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
     if (componentId === "back_btn") {
