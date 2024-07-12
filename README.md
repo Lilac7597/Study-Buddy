@@ -8,7 +8,7 @@ He can even calculate your GPA so that you don't have to do the math yourself.
 ## Commands
 
 <ul>
-  <li><b>/test:</b> Just to make sure Gerald works :)</li>
+  <li><b>/test:</b> Just makes sure the bot works :)</li>
 <li><b>/hi:</b> He will greet you back!</li>
 <li><b>/classes:</b> View a list of all the classes you've added! There is a 'Choose...' button that allows
 the user to choose what classes they are currently enrolled in. Choosing classes ensures that the 
@@ -43,10 +43,10 @@ it was a bit of a struggle, I'm getting the hang of it though! :D<br><br>
      </details>
 </li>
 
-<li>Discord's Getting Started Guide - https://discord.com/developers/docs/quick-start/getting-started
-Specific project used - https://github.com/discord/discord-example-app
+<li>Discord's Getting Started Guide - https://discord.com/developers/docs/quick-start/getting-started \n
+  (Specific project used - https://github.com/discord/discord-example-app)
 
-I used the discord example app as starter code; a lot of it was deleted or modified.<br>
+I used the discord example app as starter code; most of it was deleted or modified.<br>
   <details>
 <summary>Code kept</summary>
     <ul>

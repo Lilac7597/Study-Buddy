@@ -80,74 +80,6 @@ app.post("/interactions", async function (req, res) {
       });
     }
 
-    if (name === "help") {
-      const embed = {
-        title: "User Guide",
-        description:
-          "Hi I'm Gerald! I am designed to make your school life easier. I can provide you wiith multiple tools that will hopefully make school less painful :D (Also I'm better than Class Companion).",
-        color: 7793062,
-        footer: {
-          icon_url:
-            "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
-          text: "Press any of the buttons below to learn more!",
-        },
-        thumbnail: {
-          url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
-        },
-        fields: [
-          {
-            name: "Features:",
-            value:
-              "- Create a list of upcoming tests, quizzes, and events.\n- Stay notified of upcoming events.\n- Create a to-do list to keep track of all your work.\n- Calculate your GPA.",
-          },
-          {
-            name: "Confused?",
-            value:
-              "If you don't know how to use one of the features, click on the corresponding button below for a guide!",
-          },
-        ],
-      };
-
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          embeds: [embed],
-          components: [
-            {
-              type: 1,
-              components: [
-                {
-                  type: 2,
-                  custom_id: "commands_btn",
-                  style: 1,
-                  label: "Commands",
-                },
-                {
-                  type: 2,
-                  custom_id: "classes_btn",
-                  style: 2,
-                  label: "Classes",
-                },
-                {
-                  type: 2,
-                  custom_id: "events_btn",
-                  style: 2,
-                  label: "Events",
-                },
-                {
-                  type: 2,
-                  custom_id: "gpa_btn",
-                  style: 2,
-                  label:
-                    "GPA Calculator",
-                },
-              ],
-            },
-          ],
-        },
-      });
-    }
-
     if (name === "classes") {
       const d = readData();
 
@@ -418,6 +350,10 @@ app.post("/interactions", async function (req, res) {
         },
       });
     }
+
+    if (name === "help") {
+      displayHelpMenu();
+    }
   }
 
   if (type === InteractionType.MESSAGE_COMPONENT) {
@@ -458,7 +394,7 @@ app.post("/interactions", async function (req, res) {
         console.error("Error sending message:", err);
       }
     }
-    
+
     //classes command
     if (componentId === "class_select") {
       //get user's id
@@ -550,34 +486,121 @@ app.post("/interactions", async function (req, res) {
       // Delete previous message
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
-    
+
     //help command
-    if(componentId === "commands_btn"){
+    if (componentId === "commands_btn") {
       const embed = {
-  "title": "Commands",
-  "description": "Here's a list of all the available commands you can use!",
-  "color": 7793062,
-  "footer": {
-    "icon_url": "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
-    "text": "Hope this helped!"
-  },
-  "thumbnail": {
-    "url": "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250"
-  },
-  "fields": [
-    {
-      "name": "Try out any of these:",
-      "value": "```- **/test:** Just to make sure Gerald works :)\n- **/hi:** He will greet you back!\n- **/classes:** View a list of all the classes you've added! The 'Choose...' button allows the user to choose what classes they are currently enrolled in, which will ensure that they get notified of upcoming events in those classes.\n- **/add-class:** Adds a class.\n- **/remove-class:** Removes a class.\n- **/events:** View a list of all upcoming tests, quizzes, and events.\n- **/add-event:** Adds an event.\n- **/remove-event:** Removes an event.\n- **/calculate-gpa:** Calculates your ranked GPA. Pressing a button will open a modal where you can enter your grades for each class that you are currently enrolled in.\n- **Additional:** The bot is programmed to remind users of the next day's events in the event list, at 8pm. It will ping the people who are enrolled in the class that the event corresponds to. Also, it will delete the current day's events, as they have probably already been completed by 8pm.```"
-    }
-  ]
-};
-      
-      return res.send({
+        title: "Commands",
+        description: "Here's a list of all the available commands you can use!",
+        color: 7793062,
+        footer: {
+          icon_url:
+            "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+          text: "Hope this helped!",
+        },
+        thumbnail: {
+          url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+        },
+        fields: [
+          {
+            name: "Try out any of these:",
+            value:
+              "- **/test:** Just makes sure Gerald works :)\n- **/hi:** He will greet you back!\n- **/classes:** View a list of all the classes you've added! The 'Choose...' button allows the user to choose what classes they are currently enrolled in, which will ensure that they get notified of upcoming tests, quizzes, anevents in those classes.\n- **/add-class:** Adds a class.\n- **/remove-class:** Removes a class.\n- **/events:** View a list of all upcoming tests, quizzes, and events.\n- **/add-event:** Adds an event.\n- **/remove-event:** Removes an event.\n- **/calculate-gpa:** Calculates your ranked GPA. Pressing a button will open a modal where you can enter your grades for each class that you are enrolled in.\n- **Additional:** The bot is programmed to remind users of the next day's events in the event list, at 8pm. It will ping the people who are enrolled in the class that the event corresponds to. Also, it will delete the current day's events, as they have probably already been completed by 8pm.",
+          },
+        ],
+      };
+
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      await res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           embeds: [embed],
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  custom_id: "back_btn",
+                  style: 1,
+                  label: "Go Back",
+                },
+              ],
+            },
+          ],
         },
       });
+      await DiscordRequest(endpoint, { method: "DELETE" });
+    }
+
+    if (componentId === "classes_btn") {
+      const embed = {
+        title: "Classes",
+        description: "Explanation of what the `/classes` command does!",
+        color: 7793062,
+        footer: {
+          icon_url:
+            "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+          text: "Hope this helped!",
+        },
+        thumbnail: {
+          url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+        },
+        fields: [
+          {
+            name: "What is this command for?",
+            value:
+              "The `/classes` command allows you to view a list of all the classes you added to it. The button below the embed that says `Choose...` allows the user to choose which classes they are currently enrolled in. Choosing classes will ensure that the user gets notified of any upcoming events (the ones in the `/events` list) that correspond to those classes.",
+          },
+          {
+            name: "`/add-class`",
+            value:
+              "Adds a class to the list of\nclasses. Begin the class\nname with `MAP` if the class\nis a MAP class, or with `AP`\nif the class is an AP class.\nThis ensures accurate GPA\ncalculation.",
+            inline: true,
+          },
+          {
+            name: "`/remove-class`",
+            value:
+              "Removes a class\nfrom the list of\nclasses. Be careful,\nthis will delete the\nclass and all the\nuserIds associated\nwith it.",
+            inline: true,
+          },
+        ],
+      };
+
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      await res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          embeds: [embed],
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  custom_id: "back_btn",
+                  style: 1,
+                  label: "Go Back",
+                },
+              ],
+            },
+          ],
+        },
+      });
+      await DiscordRequest(endpoint, { method: "DELETE" });
+    }
+
+    if (componentId === "events_btn") {
+      
+    }
+
+    if (componentId == "gpa_btn") {
+    }
+
+    if (componentId === "back_btn") {
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      displayHelpMenu();
+      await DiscordRequest(endpoint, { method: "DELETE" });
     }
   }
 
@@ -641,6 +664,79 @@ app.post("/interactions", async function (req, res) {
         },
       });
     }
+  }
+
+  function displayHelpMenu() {
+    const embed = {
+      title: "User Guide",
+      description:
+        "Hi I'm Gerald! I am designed to make your school life easier. I can provide you with multiple tools that will hopefully make school less painful :D",
+      color: 7793062,
+      footer: {
+        icon_url:
+          "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+        text: "Press any of the buttons below to learn more!",
+      },
+      thumbnail: {
+        url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+      },
+      fields: [
+        {
+          name: "Features:",
+          value:
+            "- Create a list of upcoming tests, quizzes, and events.\n- Stay notified of upcoming events.\n- Calculate your GPA.",
+        },
+        {
+          name: "Confused?",
+          value:
+            "If you don't know how to use one of the features, click on the corresponding button below for a guide!",
+        },
+      ],
+    };
+
+    return res.send({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        embeds: [embed],
+        components: [
+          {
+            type: 1,
+            components: [
+              {
+                type: 2,
+                custom_id: "commands_btn",
+                style: 1,
+                label: "Commands",
+              },
+              {
+                type: 2,
+                custom_id: "classes_btn",
+                style: 2,
+                label: "Classes",
+              },
+              {
+                type: 2,
+                custom_id: "events_btn",
+                style: 2,
+                label: "Events",
+              },
+              {
+                type: 2,
+                custom_id: "gpa_btn",
+                style: 2,
+                label: "GPA Calculator",
+              },
+              {
+                type: 2,
+                custom_id: "exit_btn",
+                style: 4,
+                label: "Exit",
+              },
+            ],
+          },
+        ],
+      },
+    });
   }
 });
 
@@ -719,7 +815,6 @@ async function getClassesOptions() {
 
   return options;
 }
-
 //TODO:
 //user guide
 //maybe todo list
