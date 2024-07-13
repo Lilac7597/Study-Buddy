@@ -411,6 +411,7 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "settings") {
+      displaySettings();
     }
   }
 
@@ -625,6 +626,7 @@ app.post("/interactions", async function (req, res) {
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
+    //help command
     if (componentId === "classes_btn") {
       const embed = {
         title: "Classes",
@@ -682,6 +684,7 @@ app.post("/interactions", async function (req, res) {
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
+    //help command
     if (componentId === "events_btn") {
       const embed = {
         title: "Events",
@@ -739,6 +742,7 @@ app.post("/interactions", async function (req, res) {
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
+    //help command
     if (componentId === "gpa_btn") {
       const embed = {
         title: "GPA Calculator",
@@ -793,6 +797,40 @@ app.post("/interactions", async function (req, res) {
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
+    if (componentId === "channel_id_btn") {
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      await res.send({
+        type: InteractionResponseType.MODAL,
+        data: {
+					title: 'Update Notification Channel',
+					custom_id: 'channelModal',
+					components: [
+						{
+							type: 1,
+							components: [
+								{
+									type: 4,
+									style: 1,
+									label: 'Enter Channel ID',
+									custom_id: 'channel_id_input',
+									placeholder: 'ex. 012345678901234567',
+								},
+							],
+						},
+            ]
+            }
+      });
+      await DiscordRequest(endpoint, { method: "DELETE" });
+    }
+
+    if (componentId === "timezone_btn") {
+      
+    }
+
+    if (componentId === "notifs_btn") {
+    }
+
+    //help command + settings command
     if (componentId === "exit_btn") {
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
       await res.send({
@@ -801,9 +839,17 @@ app.post("/interactions", async function (req, res) {
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
+    //help command
     if (componentId === "back_btn") {
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
       displayHelpMenu();
+      await DiscordRequest(endpoint, { method: "DELETE" });
+    }
+
+    //settings command
+    if (componentId === "s_back_btn") {
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      displaySettings();
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
   }
@@ -938,6 +984,88 @@ app.post("/interactions", async function (req, res) {
                 custom_id: "gpa_btn",
                 style: 2,
                 label: "GPA Calculator",
+              },
+              {
+                type: 2,
+                custom_id: "exit_btn",
+                style: 4,
+                label: "Exit",
+              },
+            ],
+          },
+        ],
+      },
+    });
+  }
+
+  function displaySettings() {
+    const userId = req.body.member.user.id;
+    const dataIn = readData();
+    const d = dataIn.guilds[guild_id] || {
+      classesList: [],
+      classesMap: [],
+      eventsMap: [],
+      userNotifs: [],
+      channel_id: "",
+      timezone: "",
+    };
+    dataIn.guilds[guild_id] = d;
+
+    const embed = {
+      title: "Settings",
+      description:
+        "Update your channel ID or timezone, or enable/disable notifications here.",
+      color: 7793062,
+      footer: {
+        icon_url:
+          "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+        text: "Press one of buttons below to update a setting!",
+      },
+      thumbnail: {
+        url: "https://cdn.glitch.global/a69e3a17-ba16-44e3-8c4c-e13ba17901b7/download.jpg?v=1720107311250",
+      },
+      fields: [
+        {
+          name: "Information:",
+          value:
+            "- **Channel ID:** Notifications about upcoming events will occur in this channel. To find a channel ID, right click a channel in your server's sidebar and click on `Copy Channel ID` (Affects the entire server).\n- **Timezone:** Ensures that Gerald will ping you at the correct time in your timezone (Affects the entire server).\n- **Notifications:** Enable or disable your notifications for upcoming events (Will not affect other users).",
+        },
+        {
+          name: "Current Settings:",
+          value: `- **Channel ID:** ${
+            d.channel_id || "None"
+          }\n- **Timezone:** ${d.timezone || "None"}\n- **Notifications:** ${
+            d.userNotifs.includes(userId) ? "Enabled" : "Disabled"
+          }`,
+        },
+      ],
+    };
+
+    return res.send({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        embeds: [embed],
+        components: [
+          {
+            type: 1,
+            components: [
+              {
+                type: 2,
+                custom_id: "channel_id_btn",
+                style: 2,
+                label: "Channel ID",
+              },
+              {
+                type: 2,
+                custom_id: "timezone_btn",
+                style: 2,
+                label: "Timezone",
+              },
+              {
+                type: 2,
+                custom_id: "notifs_btn",
+                style: 2,
+                label: "Notifications",
               },
               {
                 type: 2,
