@@ -15,47 +15,32 @@
         {
           "class": "MAP English II",
           "rank": "Ranked",
-          "users": [
-            "829379208161001482",
-            "690231745034977290"
-          ]
+          "users": ["829379208161001482", "690231745034977290"]
         },
         {
           "class": "MAP Algebra II",
           "rank": "Ranked",
-          "users": [
-            "829379208161001482"
-          ]
+          "users": ["829379208161001482"]
         },
         {
           "class": "AP World Hist",
           "rank": "Ranked",
-          "users": [
-            "829379208161001482",
-            "690231745034977290"
-          ]
+          "users": ["829379208161001482", "690231745034977290"]
         },
         {
           "class": "MAP Pre-Calc",
           "rank": "Ranked",
-          "users": [
-            "829379208161001482",
-            "690231745034977290"
-          ]
+          "users": ["829379208161001482", "690231745034977290"]
         },
         {
           "class": "MAP Chemistry",
           "rank": "Ranked",
-          "users": [
-            "690231745034977290"
-          ]
+          "users": ["690231745034977290"]
         },
         {
           "class": "AP Statistics",
           "rank": "Ranked",
-          "users": [
-            "690231745034977290"
-          ]
+          "users": ["690231745034977290"]
         },
         {
           "class": "CS II",
@@ -83,42 +68,55 @@
       "userNotifs": [],
       "channel_id": "",
       "timezone": ""
-    },
-    "853067384481775656": {
-      "classesList": [
-        "MAP Pre-Calc",
-        "MAP Geometry",
-        "MAP English II"
-      ],
-      "classesMap": [
-        {
-          "class": "MAP Pre-Calc",
-          "rank": "Ranked",
-          "users": [
-            "690231745034977290"
-          ]
-        },
-        {
-          "class": "MAP Geometry",
-          "rank": "Ranked",
-          "users": [
-            "690231745034977290"
-          ]
-        },
-        {
-          "class": "MAP English II",
-          "rank": "Ranked",
-          "users": [
-            "690231745034977290"
-          ]
-        }
-      ],
-      "eventsMap": [],
-      "userNotifs": [
-        "690231745034977290"
-      ],
-      "channel_id": "853095635129598002",
-      "timezone": ""
     }
-  }
+  },
+
+  "easternTimezoneOptions": [
+    { "label": "Asia/Tokyo (JST)", "value": "Asia/Tokyo" },
+    { "label": "Asia/Shanghai (CST)", "value": "Asia/Shanghai" },
+    { "label": "Australia/Sydney (AEDT/AEST)", "value": "Australia/Sydney" },
+    { "label": "Asia/Kolkata (IST)", "value": "Asia/Kolkata" },
+    { "label": "Asia/Singapore (SGT)", "value": "Asia/Singapore" },
+    { "label": "Asia/Seoul (KST)", "value": "Asia/Seoul" },
+    { "label": "Asia/Dubai (GST)", "value": "Asia/Dubai" },
+    { "label": "Africa/Johannesburg (SAST)", "value": "Africa/Johannesburg" },
+    { "label": "Pacific/Auckland (NZST/NZDT)", "value": "Pacific/Auckland" },
+    { "label": "Asia/Manila (PHT)", "value": "Asia/Manila" },
+    {
+      "label": "America/Argentina/Buenos_Aires (ART)",
+      "value": "America/Argentina/Buenos_Aires"
+    },
+    { "label": "America/Caracas (VET)", "value": "America/Caracas" },
+    { "label": "Asia/Bangkok (ICT)", "value": "Asia/Bangkok" },
+    { "label": "Asia/Jakarta (WIB)", "value": "Asia/Jakarta" },
+    { "label": "Asia/Karachi (PKT)", "value": "Asia/Karachi" },
+    { "label": "Asia/Taipei (CST)", "value": "Asia/Taipei" },
+    { "label": "Asia/Kathmandu (NPT)", "value": "Asia/Kathmandu" },
+    { "label": "Pacific/Fiji (FJT/FJST)", "value": "Pacific/Fiji" },
+    { "label": "Asia/Vladivostok (VLAT)", "value": "Asia/Vladivostok" },
+    { "label": "Asia/Irkutsk (IRKT)", "value": "Asia/Irkutsk" },
+    { "label": "Europe/Moscow (MSK/MSD)", "value": "Europe/Moscow" },
+    { "label": "Europe/Brussels (CET/CEST)", "value": "Europe/Brussels" },
+    { "label": "Asia/Kathmandu (NPT)", "value": "Asia/Kathmandu" }
+  ],
+  "westernTimezoneOptions": [
+    { "label": "UTC", "value": "UTC" },
+    { "label": "America/New_York (EST/EDT)", "value": "America/New_York" },
+    { "label": "America/Chicago (CST/CDT)", "value": "America/Chicago" },
+    { "label": "America/Denver (MST/MDT)", "value": "America/Denver" },
+    {
+      "label": "America/Los_Angeles (PST/PDT)",
+      "value": "America/Los_Angeles"
+    },
+    { "label": "America/Anchorage (AKST/AKDT)", "value": "America/Anchorage" },
+    { "label": "America/Honolulu (HST)", "value": "America/Honolulu" },
+    { "label": "Europe/London (GMT/BST)", "value": "Europe/London" },
+    { "label": "Europe/Paris (CET/CEST)", "value": "Europe/Paris" },
+    { "label": "America/Sao_Paulo (BRT/BRST)", "value": "America/Sao_Paulo" },
+    { "label": "America/Belize (CST)", "value": "America/Belize" },
+    { "label": "America/La_Paz (UTC-4)", "value": "America/La_Paz" },
+    { "label": "America/Asuncion (PYT/PYDT)", "value": "America/Asuncion" },
+    { "label": "America/Phoenix (MST/MDT)", "value": "America/Phoenix" },
+    { "label": "Pacific/Honolulu (HST)", "value": "Pacific/Honolulu" }
+  ]
 }

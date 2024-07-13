@@ -40,11 +40,6 @@ app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
 //Gerald's responses
 var responsesList = ["hey", "hi", "hello", "howdy", "what's up,", "bonjour"];
 
-//List of current available classes
-var classesList;
-//Map of users and the classes they are assigned to
-var classesMap;
-
 // Interactions endpoint URL where Discord will send HTTP requests
 app.post("/interactions", async function (req, res) {
   // Interaction type and data
@@ -798,33 +793,114 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (componentId === "channel_id_btn") {
-      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
       await res.send({
         type: InteractionResponseType.MODAL,
         data: {
-					title: 'Update Notification Channel',
-					custom_id: 'channelModal',
-					components: [
-						{
-							type: 1,
-							components: [
-								{
-									type: 4,
-									style: 1,
-									label: 'Enter Channel ID',
-									custom_id: 'channel_id_input',
-									placeholder: 'ex. 012345678901234567',
-								},
-							],
-						},
-            ]
-            }
+          title: "Update Notification Channel",
+          custom_id: "channelModal",
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 4,
+                  style: 1,
+                  label: "Enter Channel ID",
+                  custom_id: "channel_id_input",
+                  placeholder: "ex. 012345678901234567",
+                },
+              ],
+            },
+          ],
+        },
       });
-      await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
     if (componentId === "timezone_btn") {
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+
+      await res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "What hemisphere are you located in?",
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  custom_id: "eastern_btn",
+                  style: 2,
+                  label: "Eastern",
+                },
+                {
+                  type: 2,
+                  custom_id: "western_btn",
+                  style: 2,
+                  label: "Western",
+                }
+              ],
+            },
+          ],
+        },
+      });
       
+      await DiscordRequest(endpoint, { method: "DELETE" });
+    }
+    
+    if(componentId === "eastern_btn"){
+      const dataIn = readData();
+      
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      
+      await res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "Select your timezone:",
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 3,
+                  custom_id: "timezone_select",
+                  placeholder: "Please select a timezone",
+                  options: dataIn.easternTimezoneOptions,
+                },
+              ],
+            },
+          ],
+        },
+      });
+      
+      await DiscordRequest(endpoint, { method: "DELETE" });
+    }
+    if (componentId === "western_btn"){
+      const dataIn = readData();
+      
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      
+      await res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "Select your timezone:",
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 3,
+                  custom_id: "timezone_select",
+                  placeholder: "Please select a timezone",
+                  options: dataIn.westernTimezoneOptions,
+                },
+              ],
+            },
+          ],
+        },
+      });
+      
+      await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
     if (componentId === "notifs_btn") {
@@ -922,6 +998,48 @@ app.post("/interactions", async function (req, res) {
           content: `Your ranked GPA is: ${GPA.toFixed(3)}`,
         },
       });
+    }
+
+    if (componentId === "channelModal") {
+      const inputValue = data.components[0].components[0].value;
+
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        userNotifs: [],
+        channel_id: "",
+        timezone: "",
+      };
+      dataIn.guilds[guild_id] = d;
+
+      d.channel_id = inputValue;
+      writeData(dataIn);
+
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+
+      await res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `Channel ID updated!\n`,
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  custom_id: "s_back_btn",
+                  style: 1,
+                  label: "Back to Settings",
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      await DiscordRequest(endpoint, { method: "DELETE" });
     }
   }
 
