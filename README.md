@@ -36,8 +36,8 @@ it was a bit of a struggle, I'm getting the hang of it though! :D<br><br>
   <details>
 <summary>Code generated</summary>
     <ul>
-     <li>readData() and writeData() functions in utils.js.</li> 
-      <li>Most of cron.schedule on lines 577-634; was modified and customized.</li>
+     <li>readData() and writeData() functions in utils.js (lines 8-27).</li> 
+      <li>Most of cron.schedule in app.js (lines 1245-1330); some parts were modified. </li>
       <li>Some parts of the 'add-event' application command interaction in app.js, lines 261-271 and 289-295.</li>
     </ul>
      </details>

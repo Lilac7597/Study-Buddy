@@ -73,6 +73,11 @@
           "class": "MAP Pre-Calc",
           "name": "we totally have a test frfr",
           "date": "07-10-24"
+        },
+        {
+          "class": "MAP Chemistry",
+          "name": "test2",
+          "date": "07-15-24"
         }
       ],
       "userNotifs": [
@@ -105,7 +110,7 @@
         "690231745034977290"
       ],
       "channel_id": "853095635129598002",
-      "timezone": ""
+      "timezone": "Etc/GMT+5"
     }
   }
 }

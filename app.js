@@ -938,6 +938,51 @@ app.post("/interactions", async function (req, res) {
 
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
+    
+    if(componentId === "timezone_select"){
+      const inputValue = data.values[0];
+      
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        userNotifs: [],
+        channel_id: "",
+        timezone: "",
+      };
+
+      d.timezone = inputValue;
+      dataIn.guilds[guild_id] = d;
+      writeData(dataIn);
+      
+      const timezoneOption = easternTimezoneOptions.find(option => option.value === inputValue);
+      const timezoneLabel = timezoneOption ? timezoneOption.label : westernTimezoneOptions.find(option => option.value === inputValue).label;
+      
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+
+      await res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `Timezone updated to ${timezoneLabel}!\n`,
+          components: [
+            {
+              type: 1,
+              components: [
+                {
+                  type: 2,
+                  custom_id: "s_back_btn",
+                  style: 1,
+                  label: "Back to Settings",
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      await DiscordRequest(endpoint, { method: "DELETE" });
+    }
 
     if (componentId === "notifs_btn") {
     }
@@ -1062,7 +1107,7 @@ app.post("/interactions", async function (req, res) {
       await res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `Channel ID updated!\n`,
+          content: `Channel ID updated to ${d.channel_id}!\n`,
           components: [
             {
               type: 1,
@@ -1167,6 +1212,9 @@ app.post("/interactions", async function (req, res) {
       channel_id: "",
       timezone: "",
     };
+    
+    const timezoneOption = easternTimezoneOptions.find(option => option.value === d.timezone);
+      const timezoneLabel = timezoneOption ? timezoneOption.label : westernTimezoneOptions.find(option => option.value === d.timezone).label;
 
     const embed = {
       title: "Settings",
@@ -1191,7 +1239,7 @@ app.post("/interactions", async function (req, res) {
           name: "Current Settings:",
           value: `- **Channel ID:** ${
             d.channel_id || "None"
-          }\n- **Timezone:** ${d.timezone || "None"}\n- **Notifications:** ${
+          }\n- **Timezone:** ${timezoneLabel || "None"}\n- **Notifications:** ${
             d.userNotifs.includes(userId) ? "Enabled" : "Disabled"
           }`,
         },
@@ -1259,9 +1307,8 @@ client.once("ready", () => {
 
     if (d.channel_id.length > 0) {
       cron.schedule(
-        "16 11 * * *",
+        "49 12 * * *",
         async () => {
-          for (const guild of client.guilds.cache.values()) {
             if (d.channel_id.length > 0) {
               const channelId = d.channel_id;
               const channel = await client.channels.fetch(channelId);
@@ -1315,11 +1362,11 @@ client.once("ready", () => {
                     );
 
                     await channel.send(message.join("\n"));
+                    break;
                   }
                 }
               }
             }
-          }
         },
         {
           timezone: d.timezone || "Etc/GMT+5",
