@@ -37,6 +37,50 @@ const PORT = process.env.PORT || 3000;
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
 
+const easternTimezoneOptions = [
+  { label: "UTC+01:00", value: "Etc/GMT-1" },
+  { label: "UTC+02:00", value: "Etc/GMT-2" },
+  { label: "UTC+03:00", value: "Etc/GMT-3" },
+  { label: "UTC+03:30", value: "Iran" },
+  { label: "UTC+04:00", value: "Etc/GMT-4" },
+  { label: "UTC+04:30", value: "Asia/Kabul" },
+  { label: "UTC+05:00", value: "Etc/GMT-5" },
+  { label: "UTC+05:30", value: "Asia/Calcutta" },
+  { label: "UTC+05:45", value: "Asia/Katmandu" },
+  { label: "UTC+06:00", value: "Etc/GMT-6" },
+  { label: "UTC+06:30", value: "Asia/Rangoon" },
+  { label: "UTC+07:00", value: "Etc/GMT-7" },
+  { label: "UTC+08:00", value: "Etc/GMT-8" },
+  { label: "UTC+08:45", value: "Australia/Eucla" },
+  { label: "UTC+09:00", value: "Etc/GMT-9" },
+  { label: "UTC+09:30", value: "Australia/Adelaide" },
+  { label: "UTC+10:00", value: "Etc/GMT-10" },
+  { label: "UTC+10:30", value: "Australia/Lord_Howe" },
+  { label: "UTC+11:00", value: "Etc/GMT-11" },
+  { label: "UTC+12:00", value: "Etc/GMT-12" },
+  { label: "UTC+12:45", value: "Pacific/Chatham" },
+  { label: "UTC+13:00", value: "Pacific/Tongatapu" },
+  { label: "UTC+14:00", value: "Pacific/Kiritimati" },
+];
+
+const westernTimezoneOptions = [
+  { label: "UTC-12:00", value: "Etc/GMT+12" },
+  { label: "UTC-11:00", value: "Etc/GMT+11" },
+  { label: "UTC-10:00", value: "Etc/GMT+10" },
+  { label: "UTC-09:30", value: "Pacific/Marquesas" },
+  { label: "UTC-09:00", value: "Etc/GMT+9" },
+  { label: "UTC-08:00", value: "Etc/GMT+8" },
+  { label: "UTC-07:00", value: "Etc/GMT+7" },
+  { label: "UTC-06:00", value: "Etc/GMT+6" },
+  { label: "UTC-05:00", value: "Etc/GMT+5" },
+  { label: "UTC-04:00", value: "Etc/GMT+4" },
+  { label: "UTC-03:30", value: "Canada/Newfoundland" },
+  { label: "UTC-03:00", value: "Etc/GMT+3" },
+  { label: "UTC-02:00", value: "Etc/GMT+2" },
+  { label: "UTC-01:00", value: "Etc/GMT+1" },
+  { label: "UTC+00:00", value: "Etc/GMT" },
+];
+
 //Gerald's responses
 var responsesList = ["hey", "hi", "hello", "howdy", "what's up,", "bonjour"];
 
@@ -85,7 +129,6 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
 
       const embed = {
         title: "All Classes",
@@ -155,10 +198,10 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
 
       d.classesList.push(className);
       d.classesMap.push({ class: className, rank: rank, users: [] });
+      dataIn.guilds[guild_id] = d;
       writeData(dataIn);
 
       return res.send({
@@ -181,11 +224,11 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
 
       if (index >= 0 && index < d.classesList.length) {
         d.classesList.splice(index, 1);
         d.classesMap.splice(index, 1);
+        dataIn.guilds[guild_id] = d;
         writeData(dataIn);
 
         return res.send({
@@ -215,7 +258,6 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
 
       const embed = {
         title: "Upcoming Events",
@@ -270,7 +312,6 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
 
       var className = d.classesList[req.body.data.options[0].value - 1];
       var eventName = req.body.data.options[1].value;
@@ -312,6 +353,7 @@ app.post("/interactions", async function (req, res) {
           return dateA - dateB;
         });
 
+        dataIn.guilds[guild_id] = d;
         writeData(dataIn);
       }
 
@@ -335,10 +377,10 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
 
       if (index >= 0 && index < d.eventsMap.length) {
         d.eventsMap.splice(index, 1);
+        dataIn.guilds[guild_id] = d;
         writeData(dataIn);
 
         return res.send({
@@ -423,7 +465,6 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
 
       // Delete message with token in request body
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
@@ -471,7 +512,6 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
 
       var selected = data.values;
 
@@ -495,6 +535,7 @@ app.post("/interactions", async function (req, res) {
         d.userNotifs.push(userId);
       }
 
+      dataIn.guilds[guild_id] = d;
       writeData(dataIn);
 
       // Delete message with token in request body
@@ -531,7 +572,6 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
 
       const userId = String(req.body.member.user.id);
       // const rank = req.body.data.options[0].value;
@@ -838,21 +878,19 @@ app.post("/interactions", async function (req, res) {
                   custom_id: "western_btn",
                   style: 2,
                   label: "Western",
-                }
+                },
               ],
             },
           ],
         },
       });
-      
+
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
-    
-    if(componentId === "eastern_btn"){
-      const dataIn = readData();
-      
+
+    if (componentId === "eastern_btn") {
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
-      
+
       await res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
@@ -865,21 +903,19 @@ app.post("/interactions", async function (req, res) {
                   type: 3,
                   custom_id: "timezone_select",
                   placeholder: "Please select a timezone",
-                  options: dataIn.easternTimezoneOptions,
+                  options: easternTimezoneOptions,
                 },
               ],
             },
           ],
         },
       });
-      
+
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
-    if (componentId === "western_btn"){
-      const dataIn = readData();
-      
+    if (componentId === "western_btn") {
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
-      
+
       await res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
@@ -892,14 +928,14 @@ app.post("/interactions", async function (req, res) {
                   type: 3,
                   custom_id: "timezone_select",
                   placeholder: "Please select a timezone",
-                  options: dataIn.westernTimezoneOptions,
+                  options: westernTimezoneOptions,
                 },
               ],
             },
           ],
         },
       });
-      
+
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
@@ -949,7 +985,7 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
+
       const userId = String(req.body.member.user.id);
       var filteredClassesMap = [];
       filteredClassesMap = d.classesMap.filter(
@@ -959,6 +995,10 @@ app.post("/interactions", async function (req, res) {
       filteredClassesMap = filteredClassesMap.filter((entry) =>
         entry.users.includes(userId)
       );
+
+      for (var i = filteredClassesMap.length - 1; i > 4; i--) {
+        filteredClassesMap.splice(i, 1);
+      }
 
       var sum = 0;
       for (var i = 0; i < inputValues.length; i++) {
@@ -1012,9 +1052,9 @@ app.post("/interactions", async function (req, res) {
         channel_id: "",
         timezone: "",
       };
-      dataIn.guilds[guild_id] = d;
 
       d.channel_id = inputValue;
+      dataIn.guilds[guild_id] = d;
       writeData(dataIn);
 
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
@@ -1127,7 +1167,6 @@ app.post("/interactions", async function (req, res) {
       channel_id: "",
       timezone: "",
     };
-    dataIn.guilds[guild_id] = d;
 
     const embed = {
       title: "Settings",
@@ -1217,11 +1256,10 @@ client.once("ready", () => {
       channel_id: "",
       timezone: "",
     };
-    dataIn.guilds[guild_id] = d;
 
     if (d.channel_id.length > 0) {
       cron.schedule(
-        "0 20 * * *",
+        "16 11 * * *",
         async () => {
           for (const guild of client.guilds.cache.values()) {
             if (d.channel_id.length > 0) {
@@ -1240,6 +1278,7 @@ client.once("ready", () => {
 
               d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
 
+              dataIn.guilds[guild_id] = d;
               writeData(dataIn);
 
               //notify users of tmr's events
@@ -1283,7 +1322,7 @@ client.once("ready", () => {
           }
         },
         {
-          timezone: d.timezone || "America/Chicago",
+          timezone: d.timezone || "Etc/GMT+5",
         }
       );
     }
@@ -1301,7 +1340,6 @@ async function getClassesOptions(guild_id) {
     channel_id: "",
     timezone: "",
   };
-  dataIn.guilds[guild_id] = d;
 
   var options = [];
   for (var i = 0; i < d.classesList.length; i++) {
