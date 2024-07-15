@@ -448,7 +448,7 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (name === "settings") {
-      displaySettings();
+      displaySettings("new");
     }
   }
 
@@ -604,15 +604,10 @@ app.post("/interactions", async function (req, res) {
         modal.addComponents(new ActionRowBuilder().addComponents(textInput));
       });
 
-      // Delete message with token in request body
-      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
       await res.send({
         type: InteractionResponseType.MODAL,
         data: modal.toJSON(),
       });
-
-      // Delete previous message
-      await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
     //help command
@@ -985,6 +980,27 @@ app.post("/interactions", async function (req, res) {
     }
 
     if (componentId === "notifs_btn") {
+      const userId = req.body.member.user.id;
+      const dataIn = readData();
+      const d = dataIn.guilds[guild_id] || {
+        classesList: [],
+        classesMap: [],
+        eventsMap: [],
+        userNotifs: [],
+        channel_id: "",
+        timezone: "",
+      };
+
+      if(d.userNotifs.includes(userId)){
+        d.userNotifs.splice(d.userNotifs.indexOf(userId), 1);
+      } else {
+        d.userNotifs.push(userId);
+      }
+      
+      dataIn.guilds[guild_id] = d;
+      writeData(dataIn);
+      
+      displaySettings("update");
     }
 
     //help command + settings command
@@ -1006,7 +1022,7 @@ app.post("/interactions", async function (req, res) {
     //settings command
     if (componentId === "s_back_btn") {
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
-      displaySettings();
+      displaySettings("new");
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
   }
@@ -1076,13 +1092,17 @@ app.post("/interactions", async function (req, res) {
         sum += classGPA;
       }
       var GPA = sum / inputValues.length;
-
+      
+      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
+      
       await res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: `Your ranked GPA is: ${GPA.toFixed(3)}`,
         },
       });
+      
+      await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
     if (componentId === "channelModal") {
@@ -1201,7 +1221,7 @@ app.post("/interactions", async function (req, res) {
     });
   }
 
-  function displaySettings() {
+  function displaySettings(type) {
     const userId = req.body.member.user.id;
     const dataIn = readData();
     const d = dataIn.guilds[guild_id] || {
@@ -1213,9 +1233,12 @@ app.post("/interactions", async function (req, res) {
       timezone: "",
     };
     
+    var timezoneLabel = "";
+    if(d.timezone.length > 0){
     const timezoneOption = easternTimezoneOptions.find(option => option.value === d.timezone);
-      const timezoneLabel = timezoneOption ? timezoneOption.label : westernTimezoneOptions.find(option => option.value === d.timezone).label;
-
+    timezoneLabel = timezoneOption ? timezoneOption.label : westernTimezoneOptions.find(option => option.value === d.timezone).label;
+    }
+      
     const embed = {
       title: "Settings",
       description:
@@ -1233,27 +1256,33 @@ app.post("/interactions", async function (req, res) {
         {
           name: "Information:",
           value:
-            "- **Channel ID:** Notifications about upcoming events will occur in this channel. To find a channel ID, right click a channel in your server's sidebar and click on `Copy Channel ID` (Affects the entire server).\n- **Timezone:** Ensures that Gerald will ping you at the correct time in your timezone (Affects the entire server).\n- **Notifications:** Enable or disable your notifications for upcoming events (Will not affect other users).",
+            "- **Notifications:** Enable or disable your notifications for upcoming events (Will not affect other users).\n- **Channel ID:** Notifications about upcoming events will occur in this channel. To find a channel ID, right click a channel in your server's sidebar and click on `Copy Channel ID` (Affects the entire server).\n- **Timezone:** Ensures that Gerald will ping you at the correct time in your timezone (Affects the entire server).",
         },
         {
           name: "Current Settings:",
-          value: `- **Channel ID:** ${
+          value: `- **Notifications:** ${
+            d.userNotifs.includes(userId) ? "Enabled" : "Disabled"}\n- **Channel ID:** ${
             d.channel_id || "None"
-          }\n- **Timezone:** ${timezoneLabel || "None"}\n- **Notifications:** ${
-            d.userNotifs.includes(userId) ? "Enabled" : "Disabled"
-          }`,
+          }\n- **Timezone:** ${timezoneLabel || "None"}
+          `,
         },
       ],
     };
 
     return res.send({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      type: type === "new" ? InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE : InteractionResponseType.UPDATE_MESSAGE,
       data: {
         embeds: [embed],
         components: [
           {
             type: 1,
-            components: [
+            components: d.userNotifs.includes(userId) ? [
+              {
+                type: 2,
+                custom_id: "notifs_btn",
+                style: 1,
+                label: "Notifications: On",
+              },
               {
                 type: 2,
                 custom_id: "channel_id_btn",
@@ -1268,9 +1297,28 @@ app.post("/interactions", async function (req, res) {
               },
               {
                 type: 2,
+                custom_id: "exit_btn",
+                style: 4,
+                label: "Exit",
+              },
+            ] : [
+              {
+                type: 2,
                 custom_id: "notifs_btn",
                 style: 2,
-                label: "Notifications",
+                label: "Notifications: Off",
+              },
+              {
+                type: 2,
+                custom_id: "channel_id_btn",
+                style: 2,
+                label: "Channel ID",
+              },
+              {
+                type: 2,
+                custom_id: "timezone_btn",
+                style: 2,
+                label: "Timezone",
               },
               {
                 type: 2,
@@ -1307,7 +1355,7 @@ client.once("ready", () => {
 
     if (d.channel_id.length > 0) {
       cron.schedule(
-        "49 12 * * *",
+        "26 19 * * *",
         async () => {
             if (d.channel_id.length > 0) {
               const channelId = d.channel_id;

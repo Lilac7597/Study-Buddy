@@ -16,7 +16,8 @@
           "class": "MAP English II",
           "rank": "Ranked",
           "users": [
-            "829379208161001482"
+            "829379208161001482",
+            "690231745034977290"
           ]
         },
         {
@@ -30,14 +31,16 @@
           "class": "AP World Hist",
           "rank": "Ranked",
           "users": [
-            "829379208161001482"
+            "829379208161001482",
+            "690231745034977290"
           ]
         },
         {
           "class": "MAP Pre-Calc",
           "rank": "Ranked",
           "users": [
-            "829379208161001482"
+            "829379208161001482",
+            "690231745034977290"
           ]
         },
         {
@@ -50,17 +53,23 @@
         {
           "class": "AP Statistics",
           "rank": "Ranked",
-          "users": []
+          "users": [
+            "690231745034977290"
+          ]
         },
         {
           "class": "CS II",
           "rank": "Unranked",
-          "users": []
+          "users": [
+            "690231745034977290"
+          ]
         },
         {
           "class": "MAP Geometry",
           "rank": "Ranked",
-          "users": []
+          "users": [
+            "690231745034977290"
+          ]
         }
       ],
       "eventsMap": [
@@ -73,18 +82,13 @@
           "class": "MAP Pre-Calc",
           "name": "we totally have a test frfr",
           "date": "07-10-24"
-        },
-        {
-          "class": "MAP Chemistry",
-          "name": "test2",
-          "date": "07-15-24"
         }
       ],
       "userNotifs": [
         "690231745034977290"
       ],
       "channel_id": "1199568843991957574",
-      "timezone": ""
+      "timezone": "Etc/GMT+5"
     },
     "853067384481775656": {
       "classesList": [
