@@ -10,6 +10,8 @@ He can even calculate your GPA so that you don't have to do the math yourself.
 <ul>
   <li><b>/test:</b> Just makes sure the bot works :)</li>
 <li><b>/hi:</b> He will greet you back!</li>
+  <li><b>/help:</b> View a user guide with detailed information on how to use the bot.</li>
+  <li><b>/settings:</b> Configure user and server settings so that the bot works as intended.</li>
 <li><b>/classes:</b> View a list of all the classes you've added! There is a 'Choose...' button that allows
 the user to choose what classes they are currently enrolled in. Choosing classes ensures that the 
   user will get notified of upcoming events.</li>
@@ -37,8 +39,10 @@ it was a bit of a struggle, I'm getting the hang of it though! :D<br><br>
 <summary>Code generated</summary>
     <ul>
      <li>readData() and writeData() functions in utils.js (lines 8-27).</li> 
-      <li>Most of cron.schedule in app.js (lines 1245-1330); some parts were modified. </li>
-      <li>Some parts of the 'add-event' application command interaction in app.js, lines 261-271 and 289-295.</li>
+      <li>List of timezones in app.js (lines 41-83).</li>
+      <li>A majority of cron.schedule in app.js (lines 1367-1441), though it has been heavily modified. </li>
+      <li>Some parts of the 'add-event' application command interaction in app.js (lines 321-330, 349-355).</li>
+      <li>Finding the label of a timezone using the value in app.js (lines 961-967, 1253-1259)</li>
     </ul>
      </details>
 </li>
@@ -46,13 +50,15 @@ it was a bit of a struggle, I'm getting the hang of it though! :D<br><br>
 <li>Discord's Getting Started Guide - https://discord.com/developers/docs/quick-start/getting-started \n
   (Specific project used - https://github.com/discord/discord-example-app)
 
-I used the discord example app as starter code; most of it was deleted or modified.<br>
+I used the discord example app as a starter code/template; most of it was deleted or modified.<br>
+
   <details>
 <summary>Code kept</summary>
     <ul>
       <li>DiscordRequest, VerifyDiscordRequest, InstallGlobalCommands functions in utils.js.</li>
-      <li>Import statements in the beginning of app.js. Added a lot of import statements myself over time.</li>
-      <li>Setting up the bot at lines 34-38, as well as lines 60-90, in app.js.</li>
+      <li>The majority of package.json; slightly modified.</li>
+      <li>Import statements in the beginning of app.js. I added a lot of import statements myself over time.</li>
+      <li>Setting up the bot in app.js (lines 32-39, 88-96, 1363-1365).</li>
     </ul>
       </details>
   </li>

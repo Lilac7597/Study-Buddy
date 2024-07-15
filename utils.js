@@ -1,57 +1,58 @@
-import 'dotenv/config';
-import fetch from 'node-fetch';
-import { verifyKey } from 'discord-interactions';
-import fs from 'fs';
+import "dotenv/config";
+import fetch from "node-fetch";
+import { verifyKey } from "discord-interactions";
+import fs from "fs";
 
-const path = './data.json';
+const path = "./data.json";
 
 export function readData() {
   try {
     if (!fs.existsSync(path)) {
-       fs.writeFileSync(path, JSON.stringify({ guilds: {} }, null, 2));
+      fs.writeFileSync(path, JSON.stringify({ guilds: {} }, null, 2));
     }
-    const d = fs.readFileSync(path, 'utf8');
+    const d = fs.readFileSync(path, "utf8");
     return JSON.parse(d);
   } catch (error) {
-    console.error('Error reading data:', error);
+    console.error("Error reading data:", error);
     return {};
   }
 }
 
 export function writeData(d) {
   try {
-    fs.writeFileSync(path, JSON.stringify(d, null, 2), 'utf8');
+    fs.writeFileSync(path, JSON.stringify(d, null, 2), "utf8");
   } catch (error) {
-    console.error('Error writing data:', error);
+    console.error("Error writing data:", error);
   }
 }
 
 export function VerifyDiscordRequest(clientKey) {
   return function (req, res, buf, encoding) {
-    const signature = req.get('X-Signature-Ed25519');
-    const timestamp = req.get('X-Signature-Timestamp');
+    const signature = req.get("X-Signature-Ed25519");
+    const timestamp = req.get("X-Signature-Timestamp");
 
     const isValidRequest = verifyKey(buf, signature, timestamp, clientKey);
     if (!isValidRequest) {
-      res.status(401).send('Bad request signature');
-      throw new Error('Bad request signature');
+      res.status(401).send("Bad request signature");
+      throw new Error("Bad request signature");
     }
   };
 }
 
 export async function DiscordRequest(endpoint, options) {
   // append endpoint to root API URL
-  const url = 'https://discord.com/api/v10/' + endpoint;
+  const url = "https://discord.com/api/v10/" + endpoint;
   // Stringify payloads
   if (options.body) options.body = JSON.stringify(options.body);
   // Use node-fetch to make requests
   const res = await fetch(url, {
     headers: {
       Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
-      'Content-Type': 'application/json; charset=UTF-8',
-      'User-Agent': 'DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)',
+      "Content-Type": "application/json; charset=UTF-8",
+      "User-Agent":
+        "DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)",
     },
-    ...options
+    ...options,
   });
   // throw API errors
   if (!res.ok) {
@@ -69,7 +70,7 @@ export async function InstallGlobalCommands(appId, commands) {
 
   try {
     // This is calling the bulk overwrite endpoint: https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-global-application-commands
-    await DiscordRequest(endpoint, { method: 'PUT', body: commands });
+    await DiscordRequest(endpoint, { method: "PUT", body: commands });
   } catch (err) {
     console.error(err);
   }

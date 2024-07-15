@@ -22,9 +22,10 @@ const HELP_COMMAND = {
 
 const SETTINGS_COMMAND = {
   name: "settings",
-  description: "Update your user/server information so that the bot works properly.",
+  description:
+    "Configure your user and server settings so that the bot works as intended.",
   type: 1,
-}
+};
 
 const CLASSES_COMMAND = {
   name: "classes",
@@ -118,129 +119,6 @@ const CALCULATEGPA_COMMAND = {
   name: "calculate-gpa",
   description: "Calculate your ranked GPA.",
   type: 1,
-  // options: [
-  //   {
-  //     type: 3,
-  //     name: "type",
-  //     description:
-  //       "Choose whether you want to calculate your ranked GPA or cumulative GPA",
-  //     required: true,
-  //     choices: [
-  //       {
-  //         name: "Ranked GPA",
-  //         value: "Ranked",
-  //       },
-  //       {
-  //         name: "Cumulative GPA",
-  //         value: "Cumulative",
-  //       },
-  //     ],
-  //   },
-    // {
-    //   type: 4,
-    //   name: "grade1",
-    //   description: "Enter your grade in class 1",
-    //   required: true,
-    // },
-    // {
-    //   type: 3,
-    //   name: "type1",
-    //   description: "Choose your class 1 type",
-    //   required: true,
-    //   choices: [
-    //     {
-    //       name: "REG",
-    //       value: "REG",
-    //     },
-    //     {
-    //       name: "MAP",
-    //       value: "MAP",
-    //     },
-    //     {
-    //       name: "AP",
-    //       value: "AP",
-    //     },
-    //   ],
-    // },
-    // {
-    //   type: 4,
-    //   name: "grade2",
-    //   description: "Enter your grade in class 2",
-    //   required: true,
-    // },
-    // {
-    //   type: 3,
-    //   name: "type2",
-    //   description: "Choose your class 2 type",
-    //   required: true,
-    //   choices: [
-    //     {
-    //       name: "REG",
-    //       value: "REG",
-    //     },
-    //     {
-    //       name: "MAP",
-    //       value: "MAP",
-    //     },
-    //     {
-    //       name: "AP",
-    //       value: "AP",
-    //     },
-    //   ],
-    // },
-    // {
-    //   type: 4,
-    //   name: "grade3",
-    //   description: "Enter your grade in class 3",
-    //   required: true,
-    // },
-    // {
-    //   type: 3,
-    //   name: "type3",
-    //   description: "Choose your class 3 type",
-    //   required: true,
-    //   choices: [
-    //     {
-    //       name: "REG",
-    //       value: "REG",
-    //     },
-    //     {
-    //       name: "MAP",
-    //       value: "MAP",
-    //     },
-    //     {
-    //       name: "AP",
-    //       value: "AP",
-    //     },
-    //   ],
-    // },
-    // {
-    //   type: 4,
-    //   name: "grade4",
-    //   description: "Enter your grade in class 4",
-    //   required: true,
-    // },
-    //   {
-    //     type: 3,
-    //     name: "type4",
-    //     description: "Choose your class 4 type",
-    //     required: true,
-    //     choices: [
-    //       {
-    //         name: "REG",
-    //         value: "REG",
-    //       },
-    //       {
-    //         name: "MAP",
-    //         value: "MAP",
-    //       },
-    //       {
-    //         name: "AP",
-    //         value: "AP",
-    //       },
-    //     ],
-    //   },
-  //],
 };
 
 const ALL_COMMANDS = [

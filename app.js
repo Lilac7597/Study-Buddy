@@ -24,6 +24,7 @@ import {
   ActionRowBuilder,
 } from "discord.js";
 import { config } from "dotenv";
+import moment from "moment-timezone";
 
 // Load environment variables from a .env file
 config();
@@ -628,7 +629,7 @@ app.post("/interactions", async function (req, res) {
           {
             name: "Try out any of these:",
             value:
-              "- **/test:** Just makes sure Gerald works :)\n- **/hi:** He will greet you back!\n- **/settings:** Allows users to update their notification channel and timezone, and enable/disable notifications.\n- **/classes:** View a list of all the classes that have been added. The 'Choose...' button allows the user to stay notified of upcoming events in the classes they choose.\n- **/add-class:** Adds a class.\n- **/remove-class:** Removes a class.\n- **/events:** View a list of all upcoming tests, quizzes, and events.\n- **/add-event:** Adds an event.\n- **/remove-event:** Removes an event.\n- **/calculate-gpa:** Calculates ranked GPA. In a modal, the user can enter their grades for each ranked class they are enrolled in.\n- **Additional:** The bot is programmed to remind users of the next day's events at 8pm. It will ping the people who are enrolled in the event's corresponding class. Also, it will delete the current day's events, as they have probably already been completed by 8pm.",
+              "- **/test:** Just makes sure Gerald works :)\n- **/hi:** He will greet you back!\n- **/settings:** Allows users to connfigure their notification channel and timezone settings, as well as enable/disable notifications.\n- **/classes:** View a list of all the classes that have been added. The 'Choose...' button allows the user to stay notified of upcoming events in the classes they choose.\n- **/add-class:** Adds a class.\n- **/remove-class:** Removes a class.\n- **/events:** View a list of all upcoming tests, quizzes, and events.\n- **/add-event:** Adds an event.\n- **/remove-event:** Removes an event.\n- **/calculate-gpa:** Calculates ranked GPA. In a modal, the user can enter their grades for each ranked class they are enrolled in.\n- **Additional:** The bot is programmed to remind users of the next day's events at 8pm. It will ping the people who are enrolled in the event's corresponding class. Also, it will delete the current day's events, as they have probably already been completed by 8pm.",
           },
         ],
       };
@@ -827,6 +828,7 @@ app.post("/interactions", async function (req, res) {
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
+    //help command
     if (componentId === "channel_id_btn") {
       await res.send({
         type: InteractionResponseType.MODAL,
@@ -851,6 +853,7 @@ app.post("/interactions", async function (req, res) {
       });
     }
 
+    //help command
     if (componentId === "timezone_btn") {
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
 
@@ -883,6 +886,7 @@ app.post("/interactions", async function (req, res) {
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
+    //if user chooses eastern hemisphere for timezone
     if (componentId === "eastern_btn") {
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
 
@@ -908,6 +912,8 @@ app.post("/interactions", async function (req, res) {
 
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
+
+    //if user chooses western hemisphere for timezone
     if (componentId === "western_btn") {
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
 
@@ -933,10 +939,11 @@ app.post("/interactions", async function (req, res) {
 
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
-    
-    if(componentId === "timezone_select"){
+
+    //after user has selected their timezone
+    if (componentId === "timezone_select") {
       const inputValue = data.values[0];
-      
+
       const dataIn = readData();
       const d = dataIn.guilds[guild_id] || {
         classesList: [],
@@ -950,16 +957,21 @@ app.post("/interactions", async function (req, res) {
       d.timezone = inputValue;
       dataIn.guilds[guild_id] = d;
       writeData(dataIn);
-      
-      const timezoneOption = easternTimezoneOptions.find(option => option.value === inputValue);
-      const timezoneLabel = timezoneOption ? timezoneOption.label : westernTimezoneOptions.find(option => option.value === inputValue).label;
-      
+
+      const timezoneOption = easternTimezoneOptions.find(
+        (option) => option.value === inputValue
+      );
+      const timezoneLabel = timezoneOption
+        ? timezoneOption.label
+        : westernTimezoneOptions.find((option) => option.value === inputValue)
+            .label;
+
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
 
       await res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `Timezone updated to ${timezoneLabel}!\n`,
+          content: `Timezone updated to **${timezoneLabel}**!\n`,
           components: [
             {
               type: 1,
@@ -979,6 +991,7 @@ app.post("/interactions", async function (req, res) {
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
+    //help command
     if (componentId === "notifs_btn") {
       const userId = req.body.member.user.id;
       const dataIn = readData();
@@ -991,15 +1004,15 @@ app.post("/interactions", async function (req, res) {
         timezone: "",
       };
 
-      if(d.userNotifs.includes(userId)){
+      if (d.userNotifs.includes(userId)) {
         d.userNotifs.splice(d.userNotifs.indexOf(userId), 1);
       } else {
         d.userNotifs.push(userId);
       }
-      
+
       dataIn.guilds[guild_id] = d;
       writeData(dataIn);
-      
+
       displaySettings("update");
     }
 
@@ -1030,6 +1043,7 @@ app.post("/interactions", async function (req, res) {
   if (type === InteractionType.MODAL_SUBMIT) {
     const componentId = data.custom_id;
 
+    //calculates GPA when the modal is submitted
     if (componentId === "calculateModal") {
       var inputValues = [];
       for (let action of data.components) {
@@ -1092,19 +1106,20 @@ app.post("/interactions", async function (req, res) {
         sum += classGPA;
       }
       var GPA = sum / inputValues.length;
-      
+
       const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
-      
+
       await res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: `Your ranked GPA is: ${GPA.toFixed(3)}`,
         },
       });
-      
+
       await DiscordRequest(endpoint, { method: "DELETE" });
     }
 
+    //runs when the channel ID modal is submitted
     if (componentId === "channelModal") {
       const inputValue = data.components[0].components[0].value;
 
@@ -1127,7 +1142,7 @@ app.post("/interactions", async function (req, res) {
       await res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `Channel ID updated to ${d.channel_id}!\n`,
+          content: `Channel ID updated to **${d.channel_id}**!\n`,
           components: [
             {
               type: 1,
@@ -1232,13 +1247,18 @@ app.post("/interactions", async function (req, res) {
       channel_id: "",
       timezone: "",
     };
-    
+
     var timezoneLabel = "";
-    if(d.timezone.length > 0){
-    const timezoneOption = easternTimezoneOptions.find(option => option.value === d.timezone);
-    timezoneLabel = timezoneOption ? timezoneOption.label : westernTimezoneOptions.find(option => option.value === d.timezone).label;
+    if (d.timezone.length > 0) {
+      const timezoneOption = easternTimezoneOptions.find(
+        (option) => option.value === d.timezone
+      );
+      timezoneLabel = timezoneOption
+        ? timezoneOption.label
+        : westernTimezoneOptions.find((option) => option.value === d.timezone)
+            .label;
     }
-      
+
     const embed = {
       title: "Settings",
       description:
@@ -1261,72 +1281,78 @@ app.post("/interactions", async function (req, res) {
         {
           name: "Current Settings:",
           value: `- **Notifications:** ${
-            d.userNotifs.includes(userId) ? "Enabled" : "Disabled"}\n- **Channel ID:** ${
-            d.channel_id || "None"
-          }\n- **Timezone:** ${timezoneLabel || "None"}
+            d.userNotifs.includes(userId) ? "Enabled" : "Disabled"
+          }\n- **Channel ID:** ${d.channel_id || "None"}\n- **Timezone:** ${
+            timezoneLabel || "None"
+          }
           `,
         },
       ],
     };
 
     return res.send({
-      type: type === "new" ? InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE : InteractionResponseType.UPDATE_MESSAGE,
+      type:
+        type === "new"
+          ? InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE
+          : InteractionResponseType.UPDATE_MESSAGE,
       data: {
         embeds: [embed],
         components: [
           {
             type: 1,
-            components: d.userNotifs.includes(userId) ? [
-              {
-                type: 2,
-                custom_id: "notifs_btn",
-                style: 1,
-                label: "Notifications: On",
-              },
-              {
-                type: 2,
-                custom_id: "channel_id_btn",
-                style: 2,
-                label: "Channel ID",
-              },
-              {
-                type: 2,
-                custom_id: "timezone_btn",
-                style: 2,
-                label: "Timezone",
-              },
-              {
-                type: 2,
-                custom_id: "exit_btn",
-                style: 4,
-                label: "Exit",
-              },
-            ] : [
-              {
-                type: 2,
-                custom_id: "notifs_btn",
-                style: 2,
-                label: "Notifications: Off",
-              },
-              {
-                type: 2,
-                custom_id: "channel_id_btn",
-                style: 2,
-                label: "Channel ID",
-              },
-              {
-                type: 2,
-                custom_id: "timezone_btn",
-                style: 2,
-                label: "Timezone",
-              },
-              {
-                type: 2,
-                custom_id: "exit_btn",
-                style: 4,
-                label: "Exit",
-              },
-            ],
+            components: d.userNotifs.includes(userId)
+              ? [
+                  {
+                    type: 2,
+                    custom_id: "notifs_btn",
+                    style: 1,
+                    label: "Notifications: On",
+                  },
+                  {
+                    type: 2,
+                    custom_id: "channel_id_btn",
+                    style: 2,
+                    label: "Channel ID",
+                  },
+                  {
+                    type: 2,
+                    custom_id: "timezone_btn",
+                    style: 2,
+                    label: "Timezone",
+                  },
+                  {
+                    type: 2,
+                    custom_id: "exit_btn",
+                    style: 4,
+                    label: "Exit",
+                  },
+                ]
+              : [
+                  {
+                    type: 2,
+                    custom_id: "notifs_btn",
+                    style: 2,
+                    label: "Notifications: Off",
+                  },
+                  {
+                    type: 2,
+                    custom_id: "channel_id_btn",
+                    style: 2,
+                    label: "Channel ID",
+                  },
+                  {
+                    type: 2,
+                    custom_id: "timezone_btn",
+                    style: 2,
+                    label: "Timezone",
+                  },
+                  {
+                    type: 2,
+                    custom_id: "exit_btn",
+                    style: 4,
+                    label: "Exit",
+                  },
+                ],
           },
         ],
       },
@@ -1354,70 +1380,59 @@ client.once("ready", () => {
     };
 
     if (d.channel_id.length > 0) {
+      const timezone = d.timezone || "UTC";
+
       cron.schedule(
-        "26 19 * * *",
+        "0 20 * * *",
         async () => {
-            if (d.channel_id.length > 0) {
-              const channelId = d.channel_id;
-              const channel = await client.channels.fetch(channelId);
+          if (d.channel_id.length > 0) {
+            const channelId = d.channel_id;
+            const channel = await client.channels.fetch(channelId);
 
-              //delete today's events from event list
-              const td = new Date();
-              td.setDate(td.getDate());
-              const tdStr = `${String(td.getMonth() + 1).padStart(
-                2,
-                "0"
-              )}-${String(td.getDate()).padStart(2, "0")}-${String(
-                td.getFullYear()
-              ).slice(-2)}`;
+            //delete today's events from event list
+            const td = moment().tz(timezone);
+            const tdStr = `${td.format("MM-DD-YY")}`;
 
-              d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
+            d.eventsMap = d.eventsMap.filter((event) => event.date !== tdStr);
 
-              dataIn.guilds[guild_id] = d;
-              writeData(dataIn);
+            dataIn.guilds[guild_id] = d;
+            writeData(dataIn);
 
-              //notify users of tmr's events
-              const tmr = new Date();
-              tmr.setDate(tmr.getDate() + 1);
+            //notify users of tmr's events
+            const tmr = moment().tz(timezone).add(1, "day");
+            const tmrStr = `${tmr.format("MM-DD-YY")}`;
 
-              const tmrStr = `${String(tmr.getMonth() + 1).padStart(
-                2,
-                "0"
-              )}-${String(tmr.getDate()).padStart(2, "0")}-${String(
-                tmr.getFullYear()
-              ).slice(-2)}`;
+            const tmrEvents = d.eventsMap.filter(
+              (event) => event.date === tmrStr
+            );
 
-              const tmrEvents = d.eventsMap.filter(
-                (event) => event.date === tmrStr
-              );
+            for (var i = 0; i < tmrEvents.length; i++) {
+              for (var j = 0; j < d.classesMap.length; j++) {
+                const notifiedUsers = d.classesMap[j].users.filter((entry) =>
+                  d.userNotifs.includes(entry)
+                );
+                if (
+                  tmrEvents[i].class === d.classesMap[j].class &&
+                  notifiedUsers.length > 0
+                ) {
+                  const message = [];
 
-              for (var i = 0; i < tmrEvents.length; i++) {
-                for (var j = 0; j < d.classesMap.length; j++) {
-                  const notifiedUsers = d.classesMap[j].users.filter((entry) =>
-                    d.userNotifs.includes(entry)
+                  message.push(
+                    notifiedUsers.map((entry) => `<@${entry}>`).join(" ")
                   );
-                  if (
-                    tmrEvents[i].class === d.classesMap[j].class &&
-                    notifiedUsers.length > 0
-                  ) {
-                    const message = [];
+                  message.push(
+                    `Don't forget! You have a(n) ${tmrEvents[i].class}: ${tmrEvents[i].name} tomorrow!\n`
+                  );
 
-                    message.push(
-                      notifiedUsers.map((entry) => `<@${entry}>`).join(" ")
-                    );
-                    message.push(
-                      `Don't forget! You have a(n) ${tmrEvents[i].class}: ${tmrEvents[i].name} tomorrow!\n`
-                    );
-
-                    await channel.send(message.join("\n"));
-                    break;
-                  }
+                  await channel.send(message.join("\n"));
+                  break;
                 }
               }
             }
+          }
         },
         {
-          timezone: d.timezone || "Etc/GMT+5",
+          timezone: timezone,
         }
       );
     }
@@ -1446,6 +1461,3 @@ async function getClassesOptions(guild_id) {
 
   return options;
 }
-//TODO:
-//user guide
-//maybe todo list
