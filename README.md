@@ -5,6 +5,8 @@ He can help you create organized lists of upcoming tests, quizzes, and events, a
 he will remind you the night before so that you won't forget.
 He can even calculate your GPA so that you don't have to do the math yourself.
 
+Install Study Buddy here: https://discord.com/oauth2/authorize?client_id=1258124029466775654
+
 ## Commands
 
 <ul>
@@ -42,7 +44,7 @@ it was a bit of a struggle, I'm getting the hang of it though! :D<br><br>
       <li>List of timezones in app.js (lines 41-83).</li>
       <li>A majority of cron.schedule in app.js (lines 1367-1441), though it has been heavily modified. </li>
       <li>Some parts of the 'add-event' application command interaction in app.js (lines 321-330, 349-355).</li>
-      <li>Finding the label of a timezone using the value in app.js (lines 961-967, 1253-1259)</li>
+      <li>Finding the label of a timezone using the value in app.js (lines 961-967, 1253-1259).</li>
     </ul>
      </details>
 </li>
