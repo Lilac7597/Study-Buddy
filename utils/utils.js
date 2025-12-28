@@ -2,6 +2,7 @@ import "dotenv/config";
 import fetch from "node-fetch";
 import { verifyKey } from "discord-interactions";
 import fs from "fs";
+import { easternTimezoneOptions, westernTimezoneOptions } from "./constants.js";
 
 const path = "./data.json";
 
@@ -37,6 +38,51 @@ export function VerifyDiscordRequest(clientKey) {
       throw new Error("Bad request signature");
     }
   };
+}
+
+export function loadData(dataIn, guildId) {
+    return dataIn.guilds[guildId] || {
+      classesList: [],
+      classesMap: [],
+      eventsMap: [],
+      userNotifs: [],
+      channel_id: "",
+      timezone: "",
+    };
+}
+
+export function findTimezoneLabel(d) {
+  if (d.timezone.length > 0) {
+        const timezoneOption = easternTimezoneOptions.find(
+          (option) => option.value === d.timezone
+        );
+        return timezoneOption
+          ? timezoneOption.label
+          : westernTimezoneOptions.find((option) => option.value === d.timezone)
+              .label;
+  }
+}
+
+export async function getClassesOptions(guild_id) {
+  const dataIn = readData();
+  const d = dataIn.guilds[guild_id] || {
+    classesList: [],
+    classesMap: [],
+    eventsMap: [],
+    userNotifs: [],
+    channel_id: "",
+    timezone: "",
+  };
+
+  var options = [];
+  for (var i = 0; i < d.classesList.length; i++) {
+    options.push({
+      label: d.classesList[i],
+      value: d.classesList[i],
+    });
+  }
+
+  return options;
 }
 
 export async function DiscordRequest(endpoint, options) {
